@@ -1,0 +1,121 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  width: 100%;
+  padding: 0 var(--tbg-density-inline);
+  box-sizing: border-box;
+  background: var(--tbg-row-container);
+  font-family: var(--tbg-font-family);
+  border-left: 3px solid transparent;
+  transition:
+    background-color 120ms ease,
+    opacity 120ms ease;
+}
+
+.row--zebra {
+  background: var(--tbg-row-container-alt);
+}
+
+.row--interactive {
+  cursor: pointer;
+}
+
+/* live :hover for rows actually rendered in a grid (not forced via variant) */
+.row--interactive:hover {
+  background-image: linear-gradient(var(--tbg-row-hover-state-layer), var(--tbg-row-hover-state-layer));
+}
+
+.row--hover {
+  background-image: linear-gradient(var(--tbg-row-hover-state-layer), var(--tbg-row-hover-state-layer));
+}
+
+.row--selected {
+  background: var(--tbg-row-selected-container);
+}
+
+.row--selected .cellSlot {
+  color: var(--tbg-row-selected-label);
+}
+
+.row--disabled {
+  opacity: var(--tbg-row-disabled-opacity);
+  pointer-events: none;
+}
+
+.row--error {
+  background: var(--tbg-row-error-container);
+  border-left-color: var(--tbg-row-error-indicator);
+}
+
+.leading,
+.trailing {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Frozen leading/trailing regions — used by the responsive grid so identity
+   (leading status + Account Name) and row actions stay put while the
+   remaining columns scroll horizontally beneath them. */
+.row--freeze-leading .leading {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: inherit;
+  padding-left: var(--tbg-density-inline);
+  margin-left: calc(var(--tbg-density-inline) * -1);
+}
+
+.row--freeze-trailing .trailing {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background-color: inherit;
+  padding-right: var(--tbg-density-inline);
+  margin-right: calc(var(--tbg-density-inline) * -1);
+}
+
+.cells {
+  display: flex;
+  align-items: center;
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+/* Content-sized mode: the row (and its .cells run) size to their natural
+   content width instead of stretching to fill the row, so a wide set of
+   fixed-width columns can genuinely overflow a horizontally-scrolling
+   ancestor (used by the responsive grid's tablet/scroll layout). */
+.row--fit-content {
+  width: max-content;
+  min-width: 100%;
+}
+
+.row--fit-content .cells {
+  flex: 0 0 auto;
+}
+
+/* independent inline badges — shown regardless of `variant`, per Figma:
+   "'Selected' and 'Has Error' toggle inline badges independent of the full
+   variant treatment." */
+.badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-inline-start: -2px;
+}
+
+.badge--selected {
+  background: var(--tbg-sys-primary);
+}
+
+.badge--error {
+  background: var(--tbg-sys-error);
+}

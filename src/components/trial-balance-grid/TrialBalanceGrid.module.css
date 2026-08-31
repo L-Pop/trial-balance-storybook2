@@ -1,0 +1,321 @@
+.appShell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+  background: var(--tbg-sys-surface-container-low);
+  font-family: var(--tbg-font-family);
+}
+
+.appBar {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 14px 24px;
+  background: var(--tbg-sys-surface);
+  border-bottom: 1px solid var(--tbg-sys-outline-variant);
+}
+
+.appBarTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--tbg-sys-primary);
+  margin: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.heading {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--tbg-sys-on-surface);
+}
+
+.subheading {
+  margin: 0;
+  font-size: var(--tbg-type-body-small-size);
+  line-height: var(--tbg-type-body-small-line);
+  letter-spacing: var(--tbg-type-body-small-tracking);
+  color: var(--tbg-sys-on-surface-variant);
+}
+
+.layoutBadge {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: var(--tbg-radius-pill);
+  background: var(--tbg-sys-secondary-container);
+  color: var(--tbg-sys-on-secondary-container);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.layoutBadge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ---------------- Table card (desktop / tablet) ---------------- */
+
+.card {
+  background: var(--tbg-sys-surface);
+  border: 1px solid var(--tbg-sys-outline-variant);
+  border-radius: var(--tbg-radius-md);
+  box-shadow: var(--tbg-elevation-1);
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Desktop: vertical scroll only (sticky header + elevation-on-scroll demo). */
+.vScroll {
+  overflow-y: auto;
+  max-height: 420px;
+}
+
+/* Tablet: ONE scroll container handling both axes — sticky-top (header) and
+   sticky-left (frozen identity column) both need to resolve against the
+   same scrolling ancestor. Nesting a separate overflow-x and overflow-y
+   container instead silently breaks sticky positioning (the inner box's
+   'visible' axis gets promoted to 'auto' by the UA per the CSS Overflow
+   spec, so it becomes its own clipping/scrolling context and the outer
+   container never sees the overflow). */
+.hvScroll {
+  overflow: auto;
+  max-height: 420px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  min-width: max-content;
+}
+
+.table--scrollable {
+  min-width: max-content;
+}
+
+.headerRow {
+  display: flex;
+  align-items: stretch;
+  background: #f3edf7;
+  border-bottom: 1px solid var(--tbg-sys-outline-variant);
+  padding: 4px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  transition: var(--tbg-elevation-transition);
+}
+
+.headerRow--scrolled {
+  box-shadow: var(--tbg-elevation-2);
+}
+
+.bodyRow {
+  border-bottom: 1px solid var(--tbg-sys-outline-variant);
+}
+
+.bodyRow:last-child {
+  border-bottom: none;
+}
+
+.colAccountName {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.colDebit,
+.colCredit {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.colNotes {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.colRef {
+  width: 110px;
+  flex-shrink: 0;
+}
+
+/* frozen/pinned Account Name column — only meaningfully offset once the row
+   is inside a horizontally scrolling ancestor (tablet/mobile-collapsed layout) */
+.sticky {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: inherit;
+  display: flex;
+  align-items: center;
+  width: 220px;
+  flex-shrink: 0;
+}
+
+/* Body rows: leading status icon + Account Name bundled into one fixed-width
+   unit so they freeze together (see Row's freezeLeading prop). */
+.frozenIdentity {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 204px; /* 220px column - Row's own 16px inline padding, which frames this unit */
+}
+
+.stickyDivider {
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  right: -12px;
+  width: 1px;
+  background: var(--tbg-sticky-divider);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.stickyShadow {
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  right: -22px;
+  width: 10px;
+  background: linear-gradient(90deg, var(--tbg-sticky-shadow), transparent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.scrollHint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  font-size: 11px;
+  color: var(--tbg-sys-on-surface-variant);
+  background: var(--tbg-sys-surface-container-low);
+  border-top: 1px solid var(--tbg-sys-outline-variant);
+}
+
+/* ---------------- Mobile card fallback ---------------- */
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.accountCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--tbg-radius-md);
+  border: 1px solid var(--tbg-sys-outline-variant);
+  background: var(--tbg-row-container);
+}
+
+.accountCard--selected {
+  background: var(--tbg-row-selected-container);
+  border-color: transparent;
+}
+
+.accountCard--error {
+  background: var(--tbg-row-error-container);
+  border-color: transparent;
+}
+
+.accountCard--disabled {
+  opacity: var(--tbg-row-disabled-opacity);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardIdentity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cardName {
+  font-size: var(--tbg-type-body-medium-emphasis-size);
+  font-weight: var(--tbg-type-body-medium-emphasis-weight);
+  letter-spacing: var(--tbg-type-body-medium-emphasis-tracking);
+  color: var(--tbg-sys-on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountCard--error .cardName {
+  color: var(--tbg-row-error-label);
+}
+
+.accountCard--selected .cardName {
+  color: var(--tbg-row-selected-label);
+}
+
+.cardFields {
+  display: flex;
+  gap: 16px;
+}
+
+.cardField {
+  display: flex;
+  flex: 1 0 0;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardFieldLabel {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--tbg-sys-on-surface-variant);
+  text-transform: uppercase;
+}
+
+.cardFieldValue {
+  font-size: 14px;
+  color: var(--tbg-sys-on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardFieldValue--positive {
+  color: var(--tbg-value-positive);
+}
+
+.cardFieldValue--negative {
+  color: var(--tbg-value-negative);
+}
+
+/* ---------------- Empty state ---------------- */
+
+.emptyState {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--tbg-sys-on-surface-variant);
+  font-size: 14px;
+}

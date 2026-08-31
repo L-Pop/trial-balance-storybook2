@@ -1,0 +1,55 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Trial Balance Grid/Component Properties" />
+
+# Trial Balance Grid — Component Set
+
+A Storybook implementation of the Figma **Trial Balance Table** component set
+([source file](https://www.figma.com/design/YCIOOyXcatc7zjImBIegHP/Trial-Balance-Table)),
+built to Material 3 tokens extracted directly from the file's Design Tokens page.
+
+Four components — **Toolbar**, **Header Cell**, **Row**, **Cell** — share one
+consistent "Component Properties" contract, mirrored 1:1 from the Figma
+component set's own Properties panel:
+
+|  | Property | Type | Applies to |
+|---|---|---|---|
+| Boolean | `sortable` | boolean | Header Cell |
+| Boolean | `pinned` | boolean | Header Cell |
+| Boolean | `editable` | boolean | Cell |
+| Boolean | `selected` | boolean | Row |
+| Boolean | `hasError` | boolean | Row, Cell |
+| Text | `columnLabel` | string | Header Cell |
+| Text | `cellValue` | string | Cell |
+| Text | `searchQuery` | string | Toolbar |
+| Instance swap | `leadingSlot` | node | Row — status badge |
+| Instance swap | `trailingSlot` | node | Row — row action |
+| Instance swap | icon slot | node | Header Cell — unfold / sort-asc / sort-desc / filter |
+
+A boolean property and a full **variant** are deliberately different things
+here, exactly as documented on the Figma Row and Cell components: `selected`
+and `hasError` toggle small inline badges *independent* of the row's full
+variant treatment, so a row can show an error badge without adopting the
+Error variant's complete container/label recolor. See the **Row** and
+**Cell** stories for both side by side.
+
+## Variants
+
+- **Row** — Default, Hover, Selected, Disabled / read-only, Error
+- **Header Cell** — Default, Sorted ascending, Sorted descending, Filter active
+- **Cell** — Default, Editing, Error
+- **Toolbar** — Default, Search active, Filters applied
+
+## Responsive behavior
+
+See **Mock Reference App Screen** for the full composed grid and its
+responsive collapse order (desktop → tablet frozen-column-and-scroll →
+mobile stacked cards), matching the Figma file's "Responsive Demo" page
+frame for frame.
+
+## Design tokens
+
+All colors, typography, density spacing and elevation are Material 3
+component tokens (`md.comp.data-table.*`) pulled from the Figma file's
+Design Tokens page and defined as CSS custom properties in `tokens.css` —
+see that file for the full ledger with Figma token names in comments.

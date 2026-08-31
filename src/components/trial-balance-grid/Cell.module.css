@@ -1,0 +1,89 @@
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  width: 100%;
+  min-width: var(--tbg-cell-min-width);
+  max-width: var(--tbg-cell-max-width);
+  padding: var(--tbg-density-block) var(--tbg-density-inline);
+  box-sizing: border-box;
+  background: transparent;
+  font-family: var(--tbg-font-family);
+}
+
+.cell--align-end {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.value {
+  flex: 1 0 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--tbg-type-body-medium-size);
+  line-height: var(--tbg-type-body-medium-line);
+  letter-spacing: var(--tbg-type-body-medium-tracking);
+  font-weight: var(--tbg-type-body-medium-weight);
+  color: var(--tbg-sys-on-surface);
+}
+
+.value--positive {
+  color: var(--tbg-value-positive);
+}
+
+.value--negative {
+  color: var(--tbg-value-negative);
+}
+
+.value--empty {
+  color: var(--tbg-sys-on-surface-variant);
+}
+
+/* ---- Error variant: full container + label treatment ---- */
+.cell--error {
+  background: var(--tbg-row-error-container);
+  border-radius: var(--tbg-radius-sm);
+}
+
+.cell--error .value {
+  color: var(--tbg-row-error-label);
+}
+
+.cell--error .value--positive,
+.cell--error .value--negative {
+  color: var(--tbg-row-error-label);
+}
+
+/* ---- Editing variant ---- */
+.input {
+  flex: 1 0 0;
+  min-width: 0;
+  font-family: inherit;
+  font-size: var(--tbg-type-body-medium-size);
+  line-height: var(--tbg-type-body-medium-line);
+  letter-spacing: var(--tbg-type-body-medium-tracking);
+  font-weight: var(--tbg-type-body-medium-weight);
+  color: var(--tbg-sys-on-surface);
+  background: var(--tbg-sys-surface);
+  border: 1.5px solid var(--tbg-sys-primary);
+  border-radius: 4px;
+  padding: 2px 6px;
+  outline: none;
+}
+
+.input:focus-visible {
+  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.18);
+}
+
+.errorIcon {
+  flex-shrink: 0;
+  color: var(--tbg-sys-error);
+}
+
+.pencilIcon {
+  flex-shrink: 0;
+  color: var(--tbg-sys-on-surface-variant);
+}

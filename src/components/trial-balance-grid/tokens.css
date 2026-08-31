@@ -1,0 +1,114 @@
+/**
+ * Design tokens for the Trial Balance data-grid component set.
+ * Extracted 1:1 from the Figma file "Trial Balance Table" (Design Tokens page,
+ * Material 3 component-token extension — md.comp.data-table.*).
+ *
+ * Source: https://www.figma.com/design/YCIOOyXcatc7zjImBIegHP/Trial-Balance-Table
+ */
+
+:root {
+  /* ---------- sys/* (Material 3 system roles) ---------- */
+  --tbg-sys-primary: #6750a4;
+  --tbg-sys-surface: #fffbfe;
+  --tbg-sys-surface-container-low: #f7f2fa;
+  --tbg-sys-on-surface: #1c1b1f;
+  --tbg-sys-on-surface-variant: #49454f;
+  --tbg-sys-outline-variant: #cac4d0;
+  --tbg-sys-secondary-container: #e8def8;
+  --tbg-sys-on-secondary-container: #1d192b;
+  --tbg-sys-error-container: #f9dedc;
+  --tbg-sys-on-error-container: #410e0b;
+  --tbg-sys-error: #b3261e;
+
+  /* search field (toolbar) */
+  --tbg-search-container: #ece6f0;
+  --tbg-search-text: #49454f;
+
+  /* ---------- comp/* (component tokens — row states) ---------- */
+  --tbg-row-container: var(--tbg-sys-surface); /* #fffbfe — default row, odd index */
+  --tbg-row-container-alt: var(--tbg-sys-surface-container-low); /* #f7f2fa — default row, even index (zebra) */
+  --tbg-row-hover-state-layer: rgba(28, 27, 31, 0.08); /* on-surface @ 8% */
+  --tbg-row-selected-container: var(--tbg-sys-secondary-container); /* #e8def8 */
+  --tbg-row-selected-label: var(--tbg-sys-on-secondary-container); /* #1d192b */
+  --tbg-row-error-container: var(--tbg-sys-error-container); /* #f9dedc */
+  --tbg-row-error-label: var(--tbg-sys-on-error-container); /* #410e0b */
+  --tbg-row-error-indicator: var(--tbg-sys-error); /* #b3261e — 3dp accent bar */
+  --tbg-row-disabled-opacity: 0.55;
+
+  --tbg-value-positive: #146c2e; /* md.ext.success — credit-favorable amounts */
+  --tbg-value-negative: var(--tbg-sys-error); /* negative / unfavorable amounts */
+
+  --tbg-sticky-divider: var(--tbg-sys-outline-variant); /* #cac4d0 — 1dp rule at frozen edge */
+  --tbg-sticky-shadow: rgba(28, 27, 31, 0.1); /* on-surface @ 10% — fade beside sticky column */
+
+  /* ---------- typography (Roboto / Material 3 type scale) ---------- */
+  --tbg-font-family: Roboto, "Segoe UI", system-ui, sans-serif;
+
+  --tbg-type-label-medium-size: 12px;
+  --tbg-type-label-medium-line: 16px;
+  --tbg-type-label-medium-tracking: 0.5px;
+  --tbg-type-label-medium-weight: 500;
+
+  --tbg-type-body-medium-size: 14px;
+  --tbg-type-body-medium-line: 20px;
+  --tbg-type-body-medium-tracking: 0.25px;
+  --tbg-type-body-medium-weight: 400;
+
+  --tbg-type-body-small-size: 12px;
+  --tbg-type-body-small-line: 16px;
+  --tbg-type-body-small-tracking: 0.4px;
+  --tbg-type-body-small-weight: 400;
+
+  --tbg-type-body-medium-emphasis-size: 14px;
+  --tbg-type-body-medium-emphasis-line: 20px;
+  --tbg-type-body-medium-emphasis-tracking: 0.1px;
+  --tbg-type-body-medium-emphasis-weight: 500;
+
+  --tbg-type-label-large-size: 14px;
+  --tbg-type-label-large-line: 20px;
+  --tbg-type-label-large-tracking: 0.1px;
+  --tbg-type-label-large-weight: 500;
+
+  /* ---------- density — block padding scales in 4dp steps, inline holds steady ---------- */
+  --tbg-density-comfortable-block: 14px;
+  --tbg-density-comfortable-inline: 16px;
+
+  --tbg-density-standard-block: 10px;
+  --tbg-density-standard-inline: 16px;
+
+  --tbg-density-compact-block: 6px;
+  --tbg-density-compact-inline: 12px;
+
+  /* active density tier — default to "standard" per the token ledger */
+  --tbg-density-block: var(--tbg-density-standard-block);
+  --tbg-density-inline: var(--tbg-density-standard-inline);
+
+  /* ---------- cell sizing ---------- */
+  --tbg-cell-min-width: 72px;
+  --tbg-cell-max-width: 220px;
+
+  /* ---------- elevation (Material 3 dp shadows) ---------- */
+  --tbg-elevation-0: none;
+  --tbg-elevation-1:
+    0 1px 2px 0 rgba(0, 0, 0, 0.3),
+    0 1px 3px 1px rgba(0, 0, 0, 0.15);
+  --tbg-elevation-2:
+    0 1px 2px 0 rgba(0, 0, 0, 0.3),
+    0 2px 6px 2px rgba(0, 0, 0, 0.15);
+  --tbg-elevation-3:
+    0 1px 3px 0 rgba(0, 0, 0, 0.3),
+    0 4px 8px 3px rgba(0, 0, 0, 0.15);
+  --tbg-elevation-transition: box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---------- responsive breakpoints (container-query, px) ----------
+     Named after the three Figma reference frames:
+       Desktop  — 1280  → full grid, all columns
+       Tablet   —  744  → Account Name frozen + horizontal scroll, Notes hidden
+       Mobile   —  390  → stacked cards                                    */
+  --tbg-bp-tablet: 900px;
+  --tbg-bp-mobile: 640px;
+
+  --tbg-radius-sm: 8px;
+  --tbg-radius-md: 12px;
+  --tbg-radius-pill: 24px;
+}
