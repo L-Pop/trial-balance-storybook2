@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import styles from "./TrialBalanceGrid.module.css";
 import toolbarStyles from "./Toolbar.module.css";
 import { Toolbar } from "./Toolbar";
@@ -208,6 +208,7 @@ export function TrialBalanceGrid({
   const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
   const [localAccounts, setLocalAccounts] = useState<TrialBalanceAccount[]>(accounts);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   function handleAddSearchTerm(term: string) {
     setSearchTerms((prev) => (prev.includes(term) ? prev : [...prev, term]));
@@ -336,8 +337,21 @@ export function TrialBalanceGrid({
   }
 
   function handleExportPdf() {
-    window.print();
+    // Marks only THIS instance's table as the print target — the demo page
+    // can render more than one TrialBalanceGrid at once, and a plain boolean
+    // attribute would mark all of them, printing every table on the page
+    // instead of just the one whose Export button was clicked.
+    setIsPrinting(true);
   }
+
+  useEffect(() => {
+    if (!isPrinting) return;
+    window.print();
+    // window.print() blocks until the print dialog is dismissed in every
+    // browser that matters here, so control only reaches this line once
+    // it's safe to restore normal display.
+    setIsPrinting(false);
+  }, [isPrinting]);
 
   function handleExportExcel() {
     const headers = ["Account #", "Account Name", "Debit", "Credit", "Notes", "Ref #"];
@@ -430,7 +444,7 @@ export function TrialBalanceGrid({
         )}
 
         {layout === "mobile" ? (
-          <div className={styles.cardList}>
+          <div className={styles.cardList} data-print-target={isPrinting || undefined}>
             {visibleAccounts.map((account) => (
               <MobileAccountCard
                 key={account.id}
@@ -458,7 +472,7 @@ export function TrialBalanceGrid({
             )}
           </div>
         ) : (
-          <div className={styles.card}>
+          <div className={styles.card} data-print-target={isPrinting || undefined}>
             <div
               className={freezeAccountName ? styles.hvScroll : styles.vScroll}
               onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}

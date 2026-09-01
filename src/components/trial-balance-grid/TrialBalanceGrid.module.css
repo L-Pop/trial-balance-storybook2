@@ -467,8 +467,30 @@
 /* ---------------- Print (Export to PDF) ---------------- */
 
 @media print {
-  .appBar,
-  .layoutBadge,
+  /* Export to PDF should print just the table's contents, not the rest of
+     the page (heading, toolbar, or anything else sharing the document).
+     Hide everything, then re-reveal only the element marked as the print
+     target — `visibility` (not `display`) is what makes this work, since a
+     hidden ancestor can't be un-hidden by a `display` override on a
+     descendant, but a `visibility: visible` descendant overrides an
+     inherited `hidden` from further up the tree. */
+  body * {
+    visibility: hidden;
+  }
+
+  [data-print-target],
+  [data-print-target] * {
+    visibility: visible;
+  }
+
+  [data-print-target] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  /* Still inside the print target, so needs an explicit re-hide. */
   .scrollHint {
     display: none;
   }
