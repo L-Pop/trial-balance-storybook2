@@ -146,6 +146,37 @@
   flex-shrink: 0;
 }
 
+/* Accrual/Cash amount-basis segmented toggle. */
+.basisToggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 3px;
+  border-radius: var(--tbg-radius-pill);
+  background: var(--tbg-search-container);
+  gap: 2px;
+}
+
+.basisOption {
+  border: none;
+  background: transparent;
+  padding: 7px 14px;
+  border-radius: var(--tbg-radius-pill);
+  font: inherit;
+  font-size: 14px;
+  color: var(--tbg-search-text);
+  cursor: pointer;
+}
+
+.basisOption:hover {
+  filter: brightness(0.96);
+}
+
+.basisOption--active {
+  background: var(--tbg-sys-surface);
+  color: var(--tbg-sys-on-surface);
+  box-shadow: var(--tbg-elevation-1);
+}
+
 .menu {
   position: absolute;
   top: calc(100% + 6px);

@@ -34,3 +34,6 @@ export type RowVariant = "default" | "hover" | "selected" | "disabled" | "error"
 export type HeaderCellVariant = "default" | "sorted-ascending" | "sorted-descending" | "filter-active";
 export type CellVariant = "default" | "editing" | "error";
 export type ToolbarVariant = "default" | "search-active" | "filters-applied";
+
+/** Which set of debit/credit amounts the grid displays — accrual (the default) or cash. */
+export type AccountingBasis = "accrual" | "cash";

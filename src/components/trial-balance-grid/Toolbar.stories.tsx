@@ -11,8 +11,9 @@ import { Toolbar } from "./Toolbar";
  * committed multi-term search chips (`searchTerms` / `onAddSearchTerm` /
  * `onRemoveSearchTerm`, committed by pressing Enter in the search field), a
  * column-visibility settings menu (`columns` / `onToggleColumn`), an Edit
- * button (`onEdit` / `editActive`), and an Export menu (`onExportPdf` /
- * `onExportExcel`). Each is omitted from the toolbar entirely unless its
+ * button (`onEdit` / `editActive`), an Export menu (`onExportPdf` /
+ * `onExportExcel`), and an Accrual/Cash amount-basis toggle (`basis` /
+ * `onBasisChange`). Each is omitted from the toolbar entirely unless its
  * controlling prop is passed.
  *
  * **Component Properties**
@@ -98,6 +99,12 @@ export const EditButtonActive: Story = {
 /** The Export button/menu only renders when at least one of `onExportPdf` / `onExportExcel` is passed. */
 export const Export: Story = {
   args: { variant: "default", onExportPdf: () => {}, onExportExcel: () => {} },
+};
+
+/** The Accrual/Cash toggle only renders when `onBasisChange` is passed; `basis` selects which side reads active. */
+export const AccountingBasisToggle: Story = {
+  name: "Accounting basis toggle (Accrual/Cash)",
+  args: { variant: "default", basis: "cash", onBasisChange: () => {} },
 };
 
 export const Playground: Story = {
