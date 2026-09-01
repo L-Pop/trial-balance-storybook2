@@ -6,9 +6,18 @@ import { Toolbar } from "./Toolbar";
  * filter-chip row and tints the filter button. `searchQuery` overrides the
  * search field's placeholder / seeds its value.
  *
+ * Beyond the original Figma spec, the composed Mock Reference App Screen
+ * grid has grown a few optional controls the stories below demonstrate:
+ * committed multi-term search chips (`searchTerms` / `onAddSearchTerm` /
+ * `onRemoveSearchTerm`, committed by pressing Enter in the search field), a
+ * column-visibility settings menu (`columns` / `onToggleColumn`), an Edit
+ * button (`onEdit` / `editActive`), and an Export menu (`onExportPdf` /
+ * `onExportExcel`). Each is omitted from the toolbar entirely unless its
+ * controlling prop is passed.
+ *
  * **Component Properties**
  * - Text — `searchQuery`
- * - Boolean — `filtersApplied`
+ * - Boolean — `filtersApplied`, `editActive`
  * - Variant — Default / Search active / Filters applied
  */
 const meta = {
@@ -41,6 +50,12 @@ export const SearchActive: Story = {
   args: { variant: "search-active", searchQuery: "accounts rec" },
 };
 
+/** Pressing Enter in the search field commits the typed text as a removable chip, letting customers stack several terms. */
+export const MultipleSearchTerms: Story = {
+  name: "Multiple search terms (committed chips)",
+  args: { variant: "search-active", searchTerms: ["cash", "payable"] },
+};
+
 export const FiltersApplied: Story = {
   args: {
     variant: "filters-applied",
@@ -54,6 +69,35 @@ export const FiltersApplied: Story = {
       { label: "Expenses" },
     ],
   },
+};
+
+/** Passing `columns` shows the settings (gear) button, opening a menu to toggle column visibility. */
+export const ColumnVisibility: Story = {
+  name: "Column visibility (settings)",
+  args: {
+    variant: "default",
+    columns: [
+      { key: "debit", label: "Debit", visible: true },
+      { key: "credit", label: "Credit", visible: true },
+      { key: "notes", label: "Notes", visible: false },
+      { key: "ref", label: "Ref #", visible: true },
+    ],
+  },
+};
+
+/** The Edit button only renders when `onEdit` is passed — omit it to hide the control entirely. */
+export const EditButton: Story = {
+  args: { variant: "default", onEdit: () => {} },
+};
+
+export const EditButtonActive: Story = {
+  name: "Edit button (active)",
+  args: { variant: "default", onEdit: () => {}, editActive: true },
+};
+
+/** The Export button/menu only renders when at least one of `onExportPdf` / `onExportExcel` is passed. */
+export const Export: Story = {
+  args: { variant: "default", onExportPdf: () => {}, onExportExcel: () => {} },
 };
 
 export const Playground: Story = {

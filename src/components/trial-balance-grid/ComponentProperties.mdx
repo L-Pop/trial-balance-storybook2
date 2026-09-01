@@ -21,8 +21,9 @@ component set's own Properties panel:
 | Boolean | `hasError` | boolean | Row, Cell |
 | Text | `columnLabel` | string | Header Cell |
 | Text | `cellValue` | string | Cell |
+| Text | `tooltip` | string | Cell |
 | Text | `searchQuery` | string | Toolbar |
-| Instance swap | `leadingSlot` | node | Row — status badge |
+| Instance swap | `leadingSlot` | node | Row — select radio |
 | Instance swap | `trailingSlot` | node | Row — row action |
 | Instance swap | icon slot | node | Header Cell — unfold / sort-asc / sort-desc / filter |
 
@@ -33,12 +34,38 @@ variant treatment, so a row can show an error badge without adopting the
 Error variant's complete container/label recolor. See the **Row** and
 **Cell** stories for both side by side.
 
+The same principle carries over to Row's `leadingSlot`: the composed grid
+fills it with a select radio whose `checked` state tracks the selected
+account directly, independent of `variant` — a warning/error row keeps its
+own container styling when selected instead of switching to the Selected
+variant's treatment. See **Row → Error**.
+
 ## Variants
 
 - **Row** — Default, Hover, Selected, Disabled / read-only, Error
 - **Header Cell** — Default, Sorted ascending, Sorted descending, Filter active
 - **Cell** — Default, Editing, Error
 - **Toolbar** — Default, Search active, Filters applied
+
+## Toolbar extensions
+
+The composed Mock Reference App Screen grid adds a few optional controls to
+Toolbar beyond the properties above — each stays hidden unless its
+controlling prop is passed in, so the base Toolbar is unaffected when they're
+omitted:
+
+|  | Property | Type | Notes |
+|---|---|---|---|
+| Boolean | `editActive` | boolean | Shows the Edit button pressed |
+| List | `searchTerms` | string[] | Committed search-term chips, shown below the search field |
+| Callback | `onAddSearchTerm` | (term) => void | Fired when Enter commits the typed search text |
+| Callback | `onRemoveSearchTerm` | (term) => void | Fired when a chip's remove button is clicked |
+| List | `columns` | ColumnOption[] | Shows the settings (gear) button and its column-visibility menu |
+| Callback | `onEdit` | () => void | Shows the Edit button; omit to hide it |
+| Callback | `onExportPdf` / `onExportExcel` | () => void | Shows the Export button/menu; omit both to hide it |
+
+See the **Toolbar** stories — Multiple search terms, Column visibility,
+Edit button, and Export — for each in isolation.
 
 ## Responsive behavior
 
