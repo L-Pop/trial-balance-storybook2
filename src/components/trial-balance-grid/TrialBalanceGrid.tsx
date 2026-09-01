@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import styles from "./TrialBalanceGrid.module.css";
 import toolbarStyles from "./Toolbar.module.css";
 import { Toolbar } from "./Toolbar";
@@ -190,6 +190,7 @@ export function TrialBalanceGrid({
   const hideNotes = layout === "tablet" && width > 0 && width < 700;
 
   const [search, setSearch] = useState("");
+  const [searchTerms, setSearchTerms] = useState<string[]>([]);
   const [activeCategories, setActiveCategories] = useState<
     Set<AccountCategory>
   >(new Set());
@@ -207,6 +208,15 @@ export function TrialBalanceGrid({
   const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
   const [localAccounts, setLocalAccounts] = useState<TrialBalanceAccount[]>(accounts);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  function handleAddSearchTerm(term: string) {
+    setSearchTerms((prev) => (prev.includes(term) ? prev : [...prev, term]));
+  }
+
+  function handleRemoveSearchTerm(term: string) {
+    setSearchTerms((prev) => prev.filter((t) => t !== term));
+  }
 
   function handleToggleExcluded(id: string) {
     setExcludedIds((prev) => {
@@ -278,10 +288,16 @@ export function TrialBalanceGrid({
     if (activeCategories.size > 0) {
       list = list.filter((a) => activeCategories.has(a.category));
     }
-    if (search.trim()) {
-      const q = search.trim().toLowerCase();
-      list = list.filter(
-        (a) => a.name.toLowerCase().includes(q) || a.acctNumber.includes(q),
+    // Committed search-term chips broaden the match (OR) alongside whatever
+    // is currently being typed, so results stay visible while a customer
+    // adds more terms.
+    const activeTerms = search.trim() ? [...searchTerms, search.trim()] : searchTerms;
+    if (activeTerms.length > 0) {
+      const queries = activeTerms.map((t) => t.toLowerCase());
+      list = list.filter((a) =>
+        queries.some(
+          (q) => a.name.toLowerCase().includes(q) || a.acctNumber.includes(q),
+        ),
       );
     }
     if (sortKey) {
@@ -292,7 +308,7 @@ export function TrialBalanceGrid({
       });
     }
     return list;
-  }, [localAccounts, activeCategories, search, sortKey, sortDir]);
+  }, [localAccounts, activeCategories, search, searchTerms, sortKey, sortDir]);
 
   const totals = useMemo(
     () =>
@@ -321,8 +337,21 @@ export function TrialBalanceGrid({
   }
 
   function handleExportPdf() {
-    window.print();
+    // Marks only THIS instance's table as the print target — the demo page
+    // can render more than one TrialBalanceGrid at once, and a plain boolean
+    // attribute would mark all of them, printing every table on the page
+    // instead of just the one whose Export button was clicked.
+    setIsPrinting(true);
   }
+
+  useEffect(() => {
+    if (!isPrinting) return;
+    window.print();
+    // window.print() blocks until the print dialog is dismissed in every
+    // browser that matters here, so control only reaches this line once
+    // it's safe to restore normal display.
+    setIsPrinting(false);
+  }, [isPrinting]);
 
   function handleExportExcel() {
     const headers = ["Account #", "Account Name", "Debit", "Credit", "Notes", "Ref #"];
@@ -384,7 +413,7 @@ export function TrialBalanceGrid({
 
         <Toolbar
           variant={
-            search
+            search || searchTerms.length > 0
               ? "search-active"
               : activeCategories.size > 0
                 ? "filters-applied"
@@ -394,6 +423,9 @@ export function TrialBalanceGrid({
           filters={filters}
           columns={columnOptions}
           onSearchChange={setSearch}
+          searchTerms={searchTerms}
+          onAddSearchTerm={handleAddSearchTerm}
+          onRemoveSearchTerm={handleRemoveSearchTerm}
           onToggleFilter={handleToggleFilter}
           onToggleColumn={handleToggleColumn}
           onEdit={selectedAccount ? () => setEditModalOpen(true) : undefined}
@@ -412,7 +444,7 @@ export function TrialBalanceGrid({
         )}
 
         {layout === "mobile" ? (
-          <div className={styles.cardList}>
+          <div className={styles.cardList} data-print-target={isPrinting || undefined}>
             {visibleAccounts.map((account) => (
               <MobileAccountCard
                 key={account.id}
@@ -440,7 +472,7 @@ export function TrialBalanceGrid({
             )}
           </div>
         ) : (
-          <div className={styles.card}>
+          <div className={styles.card} data-print-target={isPrinting || undefined}>
             <div
               className={freezeAccountName ? styles.hvScroll : styles.vScroll}
               onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
