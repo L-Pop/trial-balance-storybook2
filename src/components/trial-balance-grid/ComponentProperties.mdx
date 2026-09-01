@@ -63,9 +63,11 @@ omitted:
 | List | `columns` | ColumnOption[] | Shows the settings (gear) button and its column-visibility menu |
 | Callback | `onEdit` | () => void | Shows the Edit button; omit to hide it |
 | Callback | `onExportPdf` / `onExportExcel` | () => void | Shows the Export button/menu; omit both to hide it |
+| Text | `basis` | "accrual" \| "cash" | Which amounts the segmented toggle shows as active |
+| Callback | `onBasisChange` | (basis) => void | Shows the Accrual/Cash toggle; omit to hide it |
 
 See the **Toolbar** stories — Multiple search terms, Column visibility,
-Edit button, and Export — for each in isolation.
+Edit button, Export, and Accounting basis toggle — for each in isolation.
 
 ## Responsive behavior
 

@@ -3,7 +3,7 @@ import styles from "./Toolbar.module.css";
 import { IconCalendar, IconCheck, IconClose, IconDownload, IconFilter, IconSearch, IconSettings } from "./icons/Icons";
 import { useCloseOnOutsideClick } from "./useCloseOnOutsideClick";
 import { DateRangeCalendar, formatRangeLabel } from "./DateRangeCalendar";
-import type { ToolbarVariant } from "./types";
+import type { AccountingBasis, ToolbarVariant } from "./types";
 
 export interface FilterChip {
   label: string;
@@ -52,6 +52,10 @@ export interface ToolbarProps {
   onExportPdf?: () => void;
   /** Called when "Export to Excel" is chosen. */
   onExportExcel?: () => void;
+  /** Which set of amounts the grid is currently showing. Omit `onBasisChange` to hide the toggle entirely. */
+  basis?: AccountingBasis;
+  /** Called when the Accrual/Cash toggle is clicked. Omit to hide the toggle entirely. */
+  onBasisChange?: (basis: AccountingBasis) => void;
   className?: string;
 }
 
@@ -88,6 +92,8 @@ export function Toolbar({
   editActive = false,
   onExportPdf,
   onExportExcel,
+  basis = "accrual",
+  onBasisChange,
   className,
 }: ToolbarProps) {
   const [value, setValue] = useState(variant === "search-active" ? searchQuery : "");
@@ -162,6 +168,26 @@ export function Toolbar({
             </div>
           )}
         </div>
+        {onBasisChange && (
+          <div className={styles.basisToggle} role="group" aria-label="Accounting basis">
+            <button
+              type="button"
+              className={[styles.basisOption, basis === "accrual" ? styles["basisOption--active"] : ""].join(" ")}
+              aria-pressed={basis === "accrual"}
+              onClick={() => onBasisChange("accrual")}
+            >
+              Accrual
+            </button>
+            <button
+              type="button"
+              className={[styles.basisOption, basis === "cash" ? styles["basisOption--active"] : ""].join(" ")}
+              aria-pressed={basis === "cash"}
+              onClick={() => onBasisChange("cash")}
+            >
+              Cash
+            </button>
+          </div>
+        )}
         {columns && columns.length > 0 && (
           <div className={styles.menuWrap} ref={settingsRef}>
             <button

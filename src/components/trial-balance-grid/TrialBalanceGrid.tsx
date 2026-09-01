@@ -15,7 +15,7 @@ import {
   type TrialBalanceAccount,
 } from "./data";
 import { IconMore } from "./icons/Icons";
-import type { HeaderCellVariant } from "./types";
+import type { AccountingBasis, HeaderCellVariant } from "./types";
 
 export interface TrialBalanceGridProps {
   accounts?: TrialBalanceAccount[];
@@ -190,6 +190,7 @@ export function TrialBalanceGrid({
   const hideNotes = layout === "tablet" && width > 0 && width < 700;
 
   const [search, setSearch] = useState("");
+  const [basis, setBasis] = useState<AccountingBasis>("accrual");
   const [searchTerms, setSearchTerms] = useState<string[]>([]);
   const [activeCategories, setActiveCategories] = useState<
     Set<AccountCategory>
@@ -284,7 +285,17 @@ export function TrialBalanceGrid({
   }
 
   const visibleAccounts = useMemo(() => {
-    let list = localAccounts;
+    // Resolve debit/credit to the selected basis first, so every downstream
+    // step — filtering, sorting, totals, export — already sees the right
+    // amounts without needing to know about `basis` itself.
+    let list: TrialBalanceAccount[] =
+      basis === "cash"
+        ? localAccounts.map((a) => ({
+            ...a,
+            debit: a.cashDebit ?? a.debit,
+            credit: a.cashCredit ?? a.credit,
+          }))
+        : localAccounts;
     if (activeCategories.size > 0) {
       list = list.filter((a) => activeCategories.has(a.category));
     }
@@ -308,7 +319,7 @@ export function TrialBalanceGrid({
       });
     }
     return list;
-  }, [localAccounts, activeCategories, search, searchTerms, sortKey, sortDir]);
+  }, [localAccounts, basis, activeCategories, search, searchTerms, sortKey, sortDir]);
 
   const totals = useMemo(
     () =>
@@ -325,7 +336,13 @@ export function TrialBalanceGrid({
     [visibleAccounts, excludedIds],
   );
 
-  const selectedAccount = localAccounts.find((a) => a.id === selectedId) ?? null;
+  // Prefer the basis-resolved copy so the modal's read-only Debit/Credit
+  // match what the grid currently shows; fall back to the raw account if
+  // it's been filtered out of view (e.g. by search) so Edit stays available.
+  const selectedAccount =
+    visibleAccounts.find((a) => a.id === selectedId) ??
+    localAccounts.find((a) => a.id === selectedId) ??
+    null;
 
   function handleSaveEdit(changes: { name: string; notes: string }) {
     setLocalAccounts((prev) =>
@@ -432,6 +449,8 @@ export function TrialBalanceGrid({
           editActive={editModalOpen}
           onExportPdf={handleExportPdf}
           onExportExcel={handleExportExcel}
+          basis={basis}
+          onBasisChange={setBasis}
         />
 
         {editModalOpen && selectedAccount && (
