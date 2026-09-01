@@ -319,3 +319,68 @@
   color: var(--tbg-sys-on-surface-variant);
   font-size: 14px;
 }
+
+/* ---------------- Total row (table) ---------------- */
+
+.totalRow {
+  display: flex;
+  align-items: stretch;
+  background: var(--tbg-sys-surface-container-low);
+  border-top: 2px solid var(--tbg-sys-outline-variant);
+  padding: 4px 16px;
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+}
+
+.totalLabel {
+  padding: var(--tbg-density-block) var(--tbg-density-inline);
+  font-size: var(--tbg-type-body-medium-size);
+  font-weight: 700;
+  color: var(--tbg-sys-on-surface);
+}
+
+.totalValue {
+  display: block;
+  width: 100%;
+  padding: var(--tbg-density-block) var(--tbg-density-inline);
+  text-align: right;
+  font-size: var(--tbg-type-body-medium-size);
+  font-weight: 700;
+  color: var(--tbg-sys-on-surface);
+}
+
+/* ---------------- Total summary (mobile card list) ---------------- */
+
+.mobileTotals {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--tbg-radius-md);
+  background: var(--tbg-sys-surface);
+  border: 1px solid var(--tbg-sys-outline-variant);
+  font-size: 13px;
+  color: var(--tbg-sys-on-surface-variant);
+}
+
+.mobileTotals strong {
+  margin-left: 6px;
+  color: var(--tbg-sys-on-surface);
+}
+
+/* ---------------- Print (Export to PDF) ---------------- */
+
+@media print {
+  .appBar,
+  .layoutBadge,
+  .scrollHint {
+    display: none;
+  }
+
+  .vScroll,
+  .hvScroll {
+    overflow: visible;
+    max-height: none;
+  }
+}
