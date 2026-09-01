@@ -1,5 +1,5 @@
 import styles from "./TrialBalanceGrid.module.css";
-import { IconMore, IconStatusFlagged, IconStatusNone, IconStatusSelected } from "./icons/Icons";
+import { IconMore } from "./icons/Icons";
 import type { TrialBalanceAccount } from "./data";
 
 export interface MobileAccountCardProps {
@@ -35,8 +35,6 @@ export function MobileAccountCard({ account, selected = false, excluded = false,
     .filter(Boolean)
     .join(" ");
 
-  const StatusIcon = account.status === "flagged" ? IconStatusFlagged : selected ? IconStatusSelected : IconStatusNone;
-
   const debitTone = toneFor(account.debit);
   const creditTone = toneFor(account.credit);
 
@@ -44,7 +42,15 @@ export function MobileAccountCard({ account, selected = false, excluded = false,
     <div className={cardClass} role="button" tabIndex={isDisabled ? -1 : 0} aria-disabled={isDisabled} data-excluded={excluded || undefined} onClick={isDisabled ? undefined : onSelect}>
       <div className={styles.cardTop}>
         <div className={styles.cardIdentity}>
-          <StatusIcon size={18} />
+          <input
+            type="radio"
+            name="tbg-selected-account-mobile"
+            className={styles.selectRadio}
+            checked={selected}
+            disabled={isDisabled}
+            onChange={onSelect}
+            aria-label={`Select ${account.name}`}
+          />
           <span className={styles.cardAcctNumber}>{account.acctNumber}</span>
           <span className={styles.cardName}>{account.name}</span>
         </div>

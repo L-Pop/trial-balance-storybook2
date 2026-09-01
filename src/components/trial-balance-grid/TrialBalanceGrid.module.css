@@ -226,9 +226,9 @@
   flex-shrink: 0;
 }
 
-/* Body rows: account number + leading status icon + Account Name bundled
-   into one fixed-width unit so they all freeze together (see Row's
-   freezeLeading prop). */
+/* Body rows: select radio + account number + Account Name bundled into one
+   fixed-width unit so they all freeze together (see Row's freezeLeading
+   prop). */
 .frozenIdentity {
   position: relative;
   display: flex;
@@ -237,16 +237,21 @@
   width: 284px; /* 300px column - Row's own 16px inline padding, which frames this unit */
 }
 
-/* Independent "selected" indicator for rows whose forced variant (e.g. the
-   warning/error row) already owns the row's background — selecting one of
-   these rows can't show the usual full purple container treatment without
-   hiding the warning, so this dot marks the selection instead. */
-.selectedDot {
+/* Row-selection control. A native radio (grouped by `name`) reflects the
+   selected account directly via `checked` — independent of the row's
+   variant, so a warning/error row can be selected without its background
+   or icon changing. */
+.selectRadio {
   flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--tbg-sys-primary);
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--tbg-sys-primary);
+  cursor: pointer;
+}
+
+.selectRadio:disabled {
+  cursor: default;
 }
 
 .acctNumberBadge {

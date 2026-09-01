@@ -14,12 +14,7 @@ import {
   type AccountCategory,
   type TrialBalanceAccount,
 } from "./data";
-import {
-  IconMore,
-  IconStatusFlagged,
-  IconStatusNone,
-  IconStatusSelected,
-} from "./icons/Icons";
+import { IconMore } from "./icons/Icons";
 import type { HeaderCellVariant } from "./types";
 
 export interface TrialBalanceGridProps {
@@ -515,21 +510,8 @@ export function TrialBalanceGrid({
                   const variant =
                     account.forcedVariant ??
                     (account.id === selectedId ? "selected" : "default");
-                  const StatusIcon =
-                    account.status === "flagged"
-                      ? IconStatusFlagged
-                      : account.id === selectedId
-                        ? IconStatusSelected
-                        : IconStatusNone;
+                  const isDisabled = variant === "disabled";
                   const excluded = excludedIds.has(account.id);
-                  // A forced variant (e.g. the warning/error row) always wins over
-                  // the "selected" container treatment, so selecting one of these
-                  // rows wouldn't otherwise show anything. The inline `selected`
-                  // badge is independent of `variant` for exactly this case — it
-                  // lets the row register as selected without displacing its
-                  // warning styling or swapping its status icon.
-                  const showSelectedBadge =
-                    !!account.forcedVariant && account.id === selectedId;
                   return (
                     <div
                       key={account.id}
@@ -539,19 +521,23 @@ export function TrialBalanceGrid({
                       <Row
                         variant={variant}
                         zebra={index % 2 === 1}
-                        interactive={variant !== "disabled"}
+                        interactive={!isDisabled}
                         freezeLeading={freezeAccountName}
                         freezeTrailing={freezeAccountName}
                         fitContent={freezeAccountName}
                         onClick={() => setSelectedId(account.id)}
                         aria-label={account.name}
-                        aria-selected={variant === "selected" || showSelectedBadge || undefined}
                         leadingSlot={
                           <span className={styles.frozenIdentity}>
-                            <StatusIcon size={16} />
-                            {showSelectedBadge && (
-                              <span className={styles.selectedDot} aria-hidden="true" />
-                            )}
+                            <input
+                              type="radio"
+                              name="tbg-selected-account"
+                              className={styles.selectRadio}
+                              checked={account.id === selectedId}
+                              disabled={isDisabled}
+                              onChange={() => setSelectedId(account.id)}
+                              aria-label={`Select ${account.name}`}
+                            />
                             <span className={styles.acctNumberBadge}>{account.acctNumber}</span>
                             <Cell cellValue={account.name} />
                           </span>
