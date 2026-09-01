@@ -78,6 +78,17 @@
   padding: 10px 14px;
   border-radius: var(--tbg-radius-pill);
   background: var(--tbg-search-container);
+  border: 1.5px solid transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--tbg-search-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.dateRange--active {
+  border-color: var(--tbg-sys-primary);
+  background: var(--tbg-sys-surface);
 }
 
 .dateRangeIcon {
@@ -85,20 +96,23 @@
   color: var(--tbg-search-text);
 }
 
-.dateInput {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--tbg-search-text);
-  width: 118px;
+.dateRangeLabel {
+  flex: 1 0 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.dateRangeDash {
-  flex-shrink: 0;
-  color: var(--tbg-search-text);
-  opacity: 0.7;
+.dateRangeDropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 10;
+  background: var(--tbg-sys-surface);
+  border: 1px solid var(--tbg-sys-outline-variant);
+  border-radius: var(--tbg-radius-md);
+  box-shadow: var(--tbg-elevation-2);
 }
 
 .filterButton,

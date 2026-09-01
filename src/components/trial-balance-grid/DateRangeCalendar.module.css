@@ -1,0 +1,163 @@
+.picker {
+  box-sizing: border-box;
+  width: 320px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: var(--tbg-font-family);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--tbg-sys-outline-variant);
+}
+
+.headerField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.headerLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--tbg-sys-on-surface-variant);
+}
+
+.headerValue {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--tbg-sys-on-surface);
+}
+
+.headerArrow {
+  flex-shrink: 0;
+  color: var(--tbg-sys-on-surface-variant);
+}
+
+.monthNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.monthLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tbg-sys-on-surface);
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--tbg-sys-on-surface-variant);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.navButton:hover {
+  background: var(--tbg-sys-surface-container-low);
+}
+
+.weekdayRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.weekdayLabel {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tbg-sys-on-surface-variant);
+  padding-bottom: 4px;
+}
+
+.dayGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 2px;
+}
+
+.dayCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+}
+
+.dayCell--inBand {
+  background: var(--tbg-sys-secondary-container);
+}
+
+.dayCell--roundLeft {
+  border-top-left-radius: 18px;
+  border-bottom-left-radius: 18px;
+}
+
+.dayCell--roundRight {
+  border-top-right-radius: 18px;
+  border-bottom-right-radius: 18px;
+}
+
+.dayButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  color: var(--tbg-sys-on-surface);
+  cursor: pointer;
+}
+
+.dayButton:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.dayButton--anchor {
+  background: var(--tbg-sys-primary);
+  color: var(--tbg-sys-surface);
+}
+
+.dayButton--anchor:hover {
+  filter: brightness(1.1);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.textButton {
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tbg-sys-primary);
+  cursor: pointer;
+}
+
+.textButton:hover {
+  background: var(--tbg-sys-surface-container-low);
+}

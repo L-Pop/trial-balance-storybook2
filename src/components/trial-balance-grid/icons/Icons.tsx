@@ -193,15 +193,24 @@ export function IconDownload({ size = 18, ...props }: IconProps) {
 
 /** Settings/gear glyph for the toolbar's column-visibility menu. */
 export function IconSettings({ size = 18, ...props }: IconProps) {
+  // A ring of 8 rotated rectangular teeth around a hollow center, rather
+  // than radiating lines — at small sizes, thin spokes around a circle read
+  // as a sun/light-mode toggle, not a gear.
   return (
-    <svg {...base(size)} {...props} aria-hidden="true">
-      <circle cx="10" cy="10" r="2.6" stroke="currentColor" strokeWidth="1.4" fill="none" />
-      <path
-        d="M10 2.8v1.8M10 15.4v1.8M17.2 10h-1.8M4.6 10H2.8M15.03 4.97l-1.27 1.27M6.24 13.76l-1.27 1.27M15.03 15.03l-1.27-1.27M6.24 6.24 4.97 4.97"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" {...props} aria-hidden="true">
+      <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.5" />
+      {Array.from({ length: 8 }, (_, i) => (
+        <rect
+          key={i}
+          x="8.9"
+          y="1.6"
+          width="2.2"
+          height="3.4"
+          rx="0.6"
+          fill="currentColor"
+          transform={`rotate(${i * 45} 10 10)`}
+        />
+      ))}
     </svg>
   );
 }

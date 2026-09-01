@@ -2,6 +2,7 @@ import { useState } from "react";
 import styles from "./Toolbar.module.css";
 import { IconCalendar, IconCheck, IconClose, IconDownload, IconFilter, IconSearch, IconSettings } from "./icons/Icons";
 import { useCloseOnOutsideClick } from "./useCloseOnOutsideClick";
+import { DateRangeCalendar, formatRangeLabel } from "./DateRangeCalendar";
 import type { ToolbarVariant } from "./types";
 
 export interface FilterChip {
@@ -78,12 +79,14 @@ export function Toolbar({
   const [range, setRange] = useState<DateRange>(dateRange ?? { start: "", end: "" });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [dateRangeOpen, setDateRangeOpen] = useState(false);
   const isSearchActive = variant === "search-active";
   const showChips = filtersApplied || variant === "filters-applied";
   const showExport = onExportPdf || onExportExcel;
 
   const settingsRef = useCloseOnOutsideClick(settingsOpen, () => setSettingsOpen(false));
   const exportRef = useCloseOnOutsideClick(exportOpen, () => setExportOpen(false));
+  const dateRangeRef = useCloseOnOutsideClick(dateRangeOpen, () => setDateRangeOpen(false));
 
   function updateRange(next: DateRange) {
     setRange(next);
@@ -111,25 +114,29 @@ export function Toolbar({
             </button>
           )}
         </div>
-        <div className={styles.dateRange}>
-          <IconCalendar size={18} className={styles.dateRangeIcon} />
-          <input
-            type="date"
-            className={styles.dateInput}
-            value={range.start}
-            onChange={(e) => updateRange({ ...range, start: e.target.value })}
-            aria-label="Date range start"
-          />
-          <span className={styles.dateRangeDash} aria-hidden="true">
-            –
-          </span>
-          <input
-            type="date"
-            className={styles.dateInput}
-            value={range.end}
-            onChange={(e) => updateRange({ ...range, end: e.target.value })}
-            aria-label="Date range end"
-          />
+        <div className={styles.menuWrap} ref={dateRangeRef}>
+          <button
+            type="button"
+            className={[styles.dateRange, dateRangeOpen ? styles["dateRange--active"] : ""].join(" ")}
+            aria-haspopup="dialog"
+            aria-expanded={dateRangeOpen}
+            onClick={() => setDateRangeOpen((v) => !v)}
+          >
+            <IconCalendar size={18} className={styles.dateRangeIcon} />
+            <span className={styles.dateRangeLabel}>{formatRangeLabel(range)}</span>
+          </button>
+          {dateRangeOpen && (
+            <div className={styles.dateRangeDropdown}>
+              <DateRangeCalendar
+                value={range}
+                onApply={(next) => {
+                  updateRange(next);
+                  setDateRangeOpen(false);
+                }}
+                onCancel={() => setDateRangeOpen(false)}
+              />
+            </div>
+          )}
         </div>
         {columns && columns.length > 0 && (
           <div className={styles.menuWrap} ref={settingsRef}>
