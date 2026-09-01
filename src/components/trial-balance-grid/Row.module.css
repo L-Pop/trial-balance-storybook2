@@ -65,6 +65,11 @@
   left: 0;
   z-index: 2;
   background-color: inherit;
+  /* `background-image` isn't inherited implicitly like `background-color` —
+     without this, the row's hover/selected-state overlay (applied via
+     background-image, so it composites over any base color) stops at the
+     sticky region's edge instead of covering it too. */
+  background-image: inherit;
   padding-left: var(--tbg-density-inline);
   margin-left: calc(var(--tbg-density-inline) * -1);
 }
@@ -74,15 +79,19 @@
   right: 0;
   z-index: 2;
   background-color: inherit;
+  background-image: inherit;
   padding-right: var(--tbg-density-inline);
   margin-right: calc(var(--tbg-density-inline) * -1);
 }
 
-/* While a trailing tooltip/menu (e.g. the row-actions Include/Exclude
-   tooltip) is open, lift this row's trailing region above the sticky
-   header/total rows (z-index 3) so it isn't visually clipped or blocked
-   for pointer events near either edge of the scroll area. At rest it stays
-   below them (z-index 2) so header/total correctly occlude scrolled rows. */
+/* While a trailing menu (e.g. the row-actions Include/Exclude dropdown) is
+   open, lift this row's trailing region above the sticky header/total rows
+   (z-index 3) so it isn't visually clipped or blocked for pointer events
+   near either edge of the scroll area. The dropdown's trigger button stays
+   focused while its menu is open, so :focus-within covers the click-to-open
+   case; :hover is kept too as a harmless extra safety margin. At rest this
+   stays below them (z-index 2) so header/total correctly occlude scrolled
+   rows. */
 .row--freeze-trailing:has(.trailing:hover, .trailing:focus-within) .trailing {
   z-index: 5;
 }

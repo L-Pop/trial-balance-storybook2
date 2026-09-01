@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import styles from "./Toolbar.module.css";
 import { IconCalendar, IconCheck, IconClose, IconDownload, IconFilter, IconSearch, IconSettings } from "./icons/Icons";
+import { useCloseOnOutsideClick } from "./useCloseOnOutsideClick";
 import type { ToolbarVariant } from "./types";
 
 export interface FilterChip {
@@ -51,27 +52,6 @@ const DEFAULT_FILTERS: FilterChip[] = [
   { label: "Revenue" },
   { label: "Expenses" },
 ];
-
-/** Closes an open menu on outside click or Escape. */
-function useCloseOnOutsideClick(open: boolean, onClose: () => void) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    function handlePointerDown(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-    }
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open, onClose]);
-  return ref;
-}
 
 /**
  * Toolbar — table toolbar (Figma node 33:135).
