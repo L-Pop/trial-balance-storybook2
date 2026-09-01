@@ -222,6 +222,13 @@
   flex-shrink: 0;
 }
 
+/* Header-only spacer matching the width of the body row's leading status
+   icon (16px + 8px gap), which now sits ahead of the account number/name. */
+.colStatusSpacer {
+  width: 24px;
+  flex-shrink: 0;
+}
+
 /* Header-only split of the Account Name column into two adjacent labels
    (Account # + Account Name) sharing one frozen/sticky wrapper. */
 .colAcctNumber {

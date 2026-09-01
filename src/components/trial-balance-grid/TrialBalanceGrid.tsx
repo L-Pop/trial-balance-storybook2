@@ -405,6 +405,7 @@ export function TrialBalanceGrid({
                   <div
                     className={freezeAccountName ? styles.sticky : styles.colAccountName}
                   >
+                    <div className={styles.colStatusSpacer} aria-hidden="true" />
                     <div className={styles.colAcctNumber}>
                       <HeaderCell columnLabel="Acct #" />
                     </div>
@@ -492,8 +493,8 @@ export function TrialBalanceGrid({
                         aria-label={account.name}
                         leadingSlot={
                           <span className={styles.frozenIdentity}>
-                            <span className={styles.acctNumberBadge}>{account.acctNumber}</span>
                             <StatusIcon size={16} />
+                            <span className={styles.acctNumberBadge}>{account.acctNumber}</span>
                             <Cell cellValue={account.name} />
                           </span>
                         }
