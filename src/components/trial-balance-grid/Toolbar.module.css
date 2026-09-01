@@ -226,6 +226,29 @@
   cursor: pointer;
 }
 
+/* Secondary (outlined) button — same shape/sizing as .exportButton, but
+   tonally lighter so it doesn't compete with Export's filled primary. */
+.secondaryButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--tbg-sys-primary);
+  background: transparent;
+  color: var(--tbg-sys-primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.secondaryButton:hover,
+.secondaryButton--active {
+  background: var(--tbg-sys-secondary-container);
+}
+
 .exportButton:hover,
 .exportButton--active {
   filter: brightness(1.08);

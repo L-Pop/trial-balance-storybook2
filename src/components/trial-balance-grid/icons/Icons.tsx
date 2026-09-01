@@ -127,12 +127,11 @@ export function IconStatusFlagged({ size = 16, ...props }: IconProps) {
   );
 }
 
-/** Leading status badge — selected (checkbox-style fill), used on the "Selected" row variant. */
+/** Leading status badge — selected (solid filled circle), used on the "Selected" row variant. */
 export function IconStatusSelected({ size = 16, ...props }: IconProps) {
   return (
     <svg {...base(size)} {...props} aria-hidden="true">
-      <rect x="1.5" y="1.5" width="17" height="17" rx="4" fill="var(--tbg-sys-primary, #6750a4)" />
-      <path d="M5.5 10 8.5 13 14.5 6.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <circle cx="10" cy="10" r="8.5" fill="var(--tbg-sys-primary, #6750a4)" />
     </svg>
   );
 }
