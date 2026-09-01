@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import styles from "./TrialBalanceGrid.module.css";
+import toolbarStyles from "./Toolbar.module.css";
 import { Toolbar } from "./Toolbar";
 import { HeaderCell } from "./HeaderCell";
 import { Row } from "./Row";
 import { Cell } from "./Cell";
 import { MobileAccountCard } from "./MobileAccountCard";
 import { useContainerWidth } from "./useContainerWidth";
+import { useCloseOnOutsideClick } from "./useCloseOnOutsideClick";
 import {
   sampleAccounts,
   type AccountCategory,
@@ -80,10 +82,11 @@ const COLUMN_LABELS: Record<ToggleableColumn, string> = {
 };
 
 /**
- * Row's trailing "more" action, with a hover/focus tooltip offering to
- * include or exclude the row from the grid's totals.
+ * Row's trailing "more" action: a click-to-open menu (same menu chrome as
+ * the Toolbar's Export dropdown) offering to include or exclude the row
+ * from the grid's totals.
  */
-function RowActionsTooltip({
+function RowActionsMenu({
   excluded,
   onToggle,
   accountName,
@@ -92,41 +95,59 @@ function RowActionsTooltip({
   onToggle: () => void;
   accountName: string;
 }) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useCloseOnOutsideClick(open, () => setOpen(false));
+
   return (
-    <span className={styles.rowActions}>
+    <div className={toolbarStyles.menuWrap} ref={menuRef}>
       <button
         type="button"
         className={styles.rowActionsButton}
         aria-label={`Row options for ${accountName}`}
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
       >
         <IconMore />
       </button>
-      <span className={styles.rowActionsTooltip} role="tooltip">
-        <button
-          type="button"
-          className={styles.rowActionsTooltipAction}
-          aria-disabled={!excluded}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (excluded) onToggle();
-          }}
+      {open && (
+        <div
+          className={[toolbarStyles.menu, toolbarStyles["menu--right"]].join(" ")}
+          role="menu"
+          aria-label={`Row options for ${accountName}`}
         >
-          Include
-        </button>
-        <span aria-hidden="true">/</span>
-        <button
-          type="button"
-          className={styles.rowActionsTooltipAction}
-          aria-disabled={excluded}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!excluded) onToggle();
-          }}
-        >
-          Exclude
-        </button>
-      </span>
-    </span>
+          <button
+            type="button"
+            role="menuitem"
+            className={[toolbarStyles.menuItem, excluded ? "" : styles.rowActionsMenuItemDisabled].join(" ")}
+            aria-disabled={!excluded}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(false);
+              if (excluded) onToggle();
+            }}
+          >
+            Include
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className={[toolbarStyles.menuItem, excluded ? styles.rowActionsMenuItemDisabled : ""].join(" ")}
+            aria-disabled={excluded}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(false);
+              if (!excluded) onToggle();
+            }}
+          >
+            Exclude
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -499,7 +520,7 @@ export function TrialBalanceGrid({
                           </span>
                         }
                         trailingSlot={
-                          <RowActionsTooltip
+                          <RowActionsMenu
                             excluded={excluded}
                             onToggle={() => handleToggleExcluded(account.id)}
                             accountName={account.name}
