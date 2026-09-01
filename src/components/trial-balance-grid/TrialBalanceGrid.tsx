@@ -190,6 +190,7 @@ export function TrialBalanceGrid({
   const hideNotes = layout === "tablet" && width > 0 && width < 700;
 
   const [search, setSearch] = useState("");
+  const [searchTerms, setSearchTerms] = useState<string[]>([]);
   const [activeCategories, setActiveCategories] = useState<
     Set<AccountCategory>
   >(new Set());
@@ -207,6 +208,14 @@ export function TrialBalanceGrid({
   const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
   const [localAccounts, setLocalAccounts] = useState<TrialBalanceAccount[]>(accounts);
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  function handleAddSearchTerm(term: string) {
+    setSearchTerms((prev) => (prev.includes(term) ? prev : [...prev, term]));
+  }
+
+  function handleRemoveSearchTerm(term: string) {
+    setSearchTerms((prev) => prev.filter((t) => t !== term));
+  }
 
   function handleToggleExcluded(id: string) {
     setExcludedIds((prev) => {
@@ -278,10 +287,16 @@ export function TrialBalanceGrid({
     if (activeCategories.size > 0) {
       list = list.filter((a) => activeCategories.has(a.category));
     }
-    if (search.trim()) {
-      const q = search.trim().toLowerCase();
-      list = list.filter(
-        (a) => a.name.toLowerCase().includes(q) || a.acctNumber.includes(q),
+    // Committed search-term chips broaden the match (OR) alongside whatever
+    // is currently being typed, so results stay visible while a customer
+    // adds more terms.
+    const activeTerms = search.trim() ? [...searchTerms, search.trim()] : searchTerms;
+    if (activeTerms.length > 0) {
+      const queries = activeTerms.map((t) => t.toLowerCase());
+      list = list.filter((a) =>
+        queries.some(
+          (q) => a.name.toLowerCase().includes(q) || a.acctNumber.includes(q),
+        ),
       );
     }
     if (sortKey) {
@@ -292,7 +307,7 @@ export function TrialBalanceGrid({
       });
     }
     return list;
-  }, [localAccounts, activeCategories, search, sortKey, sortDir]);
+  }, [localAccounts, activeCategories, search, searchTerms, sortKey, sortDir]);
 
   const totals = useMemo(
     () =>
@@ -384,7 +399,7 @@ export function TrialBalanceGrid({
 
         <Toolbar
           variant={
-            search
+            search || searchTerms.length > 0
               ? "search-active"
               : activeCategories.size > 0
                 ? "filters-applied"
@@ -394,6 +409,9 @@ export function TrialBalanceGrid({
           filters={filters}
           columns={columnOptions}
           onSearchChange={setSearch}
+          searchTerms={searchTerms}
+          onAddSearchTerm={handleAddSearchTerm}
+          onRemoveSearchTerm={handleRemoveSearchTerm}
           onToggleFilter={handleToggleFilter}
           onToggleColumn={handleToggleColumn}
           onEdit={selectedAccount ? () => setEditModalOpen(true) : undefined}

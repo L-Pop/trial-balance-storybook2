@@ -34,6 +34,12 @@ export interface ToolbarProps {
   /** Toggleable columns shown in the settings menu next to the date range picker. Omit to hide the settings control. */
   columns?: ColumnOption[];
   onSearchChange?: (value: string) => void;
+  /** Committed search terms, shown as removable chips below the search field — lets customers narrow to multiple terms at once. */
+  searchTerms?: string[];
+  /** Called when the user presses Enter in the search field with non-empty text, committing it as a new chip. */
+  onAddSearchTerm?: (term: string) => void;
+  /** Called when a search-term chip's remove button is clicked. */
+  onRemoveSearchTerm?: (term: string) => void;
   onToggleFilter?: (label: string) => void;
   onOpenFilters?: () => void;
   onDateRangeChange?: (range: DateRange) => void;
@@ -71,6 +77,9 @@ export function Toolbar({
   dateRange,
   columns,
   onSearchChange,
+  searchTerms = [],
+  onAddSearchTerm,
+  onRemoveSearchTerm,
   onToggleFilter,
   onOpenFilters,
   onDateRangeChange,
@@ -86,7 +95,7 @@ export function Toolbar({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
-  const isSearchActive = variant === "search-active";
+  const isSearchActive = variant === "search-active" || searchTerms.length > 0;
   const showChips = filtersApplied || variant === "filters-applied";
   const showExport = onExportPdf || onExportExcel;
 
@@ -111,6 +120,15 @@ export function Toolbar({
             onChange={(e) => {
               setValue(e.target.value);
               onSearchChange?.(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              const term = value.trim();
+              if (!term) return;
+              e.preventDefault();
+              onAddSearchTerm?.(term);
+              setValue("");
+              onSearchChange?.("");
             }}
             aria-label="Search accounts"
           />
@@ -238,6 +256,22 @@ export function Toolbar({
           </div>
         )}
       </div>
+      {searchTerms.length > 0 && (
+        <div className={styles.chipRow} role="group" aria-label="Search terms">
+          {searchTerms.map((term) => (
+            <button
+              key={term}
+              type="button"
+              className={[styles.chip, styles["chip--active"]].join(" ")}
+              onClick={() => onRemoveSearchTerm?.(term)}
+              aria-label={`Remove search term "${term}"`}
+            >
+              {term}
+              <IconClose size={10} className={styles.chipIcon} />
+            </button>
+          ))}
+        </div>
+      )}
       {showChips && (
         <div className={styles.chipRow} role="group" aria-label="Account type filters">
           {filters.map((chip) => (
