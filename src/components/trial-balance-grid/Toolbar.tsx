@@ -1,11 +1,22 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./Toolbar.module.css";
-import { IconCheck, IconClose, IconFilter, IconSearch } from "./icons/Icons";
+import { IconCalendar, IconCheck, IconClose, IconDownload, IconFilter, IconSearch, IconSettings } from "./icons/Icons";
 import type { ToolbarVariant } from "./types";
 
 export interface FilterChip {
   label: string;
   active?: boolean;
+}
+
+export interface DateRange {
+  start: string;
+  end: string;
+}
+
+export interface ColumnOption {
+  key: string;
+  label: string;
+  visible: boolean;
 }
 
 export interface ToolbarProps {
@@ -16,9 +27,19 @@ export interface ToolbarProps {
   /** Variant selector — Default / Search active / Filters applied. */
   variant?: ToolbarVariant;
   filters?: FilterChip[];
+  /** Seeds the date-range control's start/end values (each an `<input type="date">` value, e.g. "2026-08-01"). */
+  dateRange?: DateRange;
+  /** Toggleable columns shown in the settings menu next to the date range picker. Omit to hide the settings control. */
+  columns?: ColumnOption[];
   onSearchChange?: (value: string) => void;
   onToggleFilter?: (label: string) => void;
   onOpenFilters?: () => void;
+  onDateRangeChange?: (range: DateRange) => void;
+  onToggleColumn?: (key: string) => void;
+  /** Called when "Export to PDF" is chosen. Omit to hide the export control entirely. */
+  onExportPdf?: () => void;
+  /** Called when "Export to Excel" is chosen. */
+  onExportExcel?: () => void;
   className?: string;
 }
 
@@ -31,6 +52,27 @@ const DEFAULT_FILTERS: FilterChip[] = [
   { label: "Expenses" },
 ];
 
+/** Closes an open menu on outside click or Escape. */
+function useCloseOnOutsideClick(open: boolean, onClose: () => void) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onClose]);
+  return ref;
+}
+
 /**
  * Toolbar — table toolbar (Figma node 33:135).
  * 'Filters Applied' reveals the removable filter-chip row and tints the filter
@@ -41,14 +83,32 @@ export function Toolbar({
   filtersApplied = false,
   variant = "default",
   filters = DEFAULT_FILTERS,
+  dateRange,
+  columns,
   onSearchChange,
   onToggleFilter,
   onOpenFilters,
+  onDateRangeChange,
+  onToggleColumn,
+  onExportPdf,
+  onExportExcel,
   className,
 }: ToolbarProps) {
   const [value, setValue] = useState(variant === "search-active" ? searchQuery : "");
+  const [range, setRange] = useState<DateRange>(dateRange ?? { start: "", end: "" });
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const isSearchActive = variant === "search-active";
   const showChips = filtersApplied || variant === "filters-applied";
+  const showExport = onExportPdf || onExportExcel;
+
+  const settingsRef = useCloseOnOutsideClick(settingsOpen, () => setSettingsOpen(false));
+  const exportRef = useCloseOnOutsideClick(exportOpen, () => setExportOpen(false));
+
+  function updateRange(next: DateRange) {
+    setRange(next);
+    onDateRangeChange?.(next);
+  }
 
   return (
     <div className={[styles.toolbar, className].filter(Boolean).join(" ")}>
@@ -71,6 +131,56 @@ export function Toolbar({
             </button>
           )}
         </div>
+        <div className={styles.dateRange}>
+          <IconCalendar size={18} className={styles.dateRangeIcon} />
+          <input
+            type="date"
+            className={styles.dateInput}
+            value={range.start}
+            onChange={(e) => updateRange({ ...range, start: e.target.value })}
+            aria-label="Date range start"
+          />
+          <span className={styles.dateRangeDash} aria-hidden="true">
+            –
+          </span>
+          <input
+            type="date"
+            className={styles.dateInput}
+            value={range.end}
+            onChange={(e) => updateRange({ ...range, end: e.target.value })}
+            aria-label="Date range end"
+          />
+        </div>
+        {columns && columns.length > 0 && (
+          <div className={styles.menuWrap} ref={settingsRef}>
+            <button
+              type="button"
+              className={[styles.iconButton, settingsOpen ? styles["iconButton--active"] : ""].join(" ")}
+              aria-pressed={settingsOpen}
+              aria-label="Table display settings"
+              aria-haspopup="true"
+              aria-expanded={settingsOpen}
+              onClick={() => setSettingsOpen((v) => !v)}
+            >
+              <IconSettings size={18} />
+            </button>
+            {settingsOpen && (
+              <div className={styles.menu} role="menu" aria-label="Show or hide columns">
+                <p className={styles.menuHeading}>Show columns</p>
+                {columns.map((col) => (
+                  <label key={col.key} className={styles.menuCheckboxRow}>
+                    <input
+                      type="checkbox"
+                      checked={col.visible}
+                      onChange={() => onToggleColumn?.(col.key)}
+                    />
+                    {col.label}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <button
           type="button"
           className={[styles.filterButton, showChips ? styles["filterButton--active"] : ""].join(" ")}
@@ -80,6 +190,50 @@ export function Toolbar({
         >
           <IconFilter size={20} />
         </button>
+        {showExport && (
+          <div className={styles.menuWrap} ref={exportRef}>
+            <button
+              type="button"
+              className={[styles.exportButton, exportOpen ? styles["exportButton--active"] : ""].join(" ")}
+              aria-haspopup="true"
+              aria-expanded={exportOpen}
+              onClick={() => setExportOpen((v) => !v)}
+            >
+              <IconDownload size={18} />
+              Export
+            </button>
+            {exportOpen && (
+              <div className={[styles.menu, styles["menu--right"]].join(" ")} role="menu" aria-label="Export options">
+                {onExportPdf && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className={styles.menuItem}
+                    onClick={() => {
+                      setExportOpen(false);
+                      onExportPdf();
+                    }}
+                  >
+                    Export to PDF
+                  </button>
+                )}
+                {onExportExcel && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className={styles.menuItem}
+                    onClick={() => {
+                      setExportOpen(false);
+                      onExportExcel();
+                    }}
+                  >
+                    Export to Excel
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
       {showChips && (
         <div className={styles.chipRow} role="group" aria-label="Account type filters">

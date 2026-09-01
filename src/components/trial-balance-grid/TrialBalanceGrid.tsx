@@ -12,8 +12,9 @@ import {
   type TrialBalanceAccount,
 } from "./data";
 import {
+  IconMore,
   IconStatusFlagged,
-  IconStatusReconciled,
+  IconStatusNone,
   IconStatusSelected,
 } from "./icons/Icons";
 import type { HeaderCellVariant } from "./types";
@@ -46,10 +47,87 @@ function parseAmount(value: string): number {
   return negative ? -numeric : numeric;
 }
 
+const NEGATIVE_BALANCE_EXPLANATION =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+
 function toneFor(value: string): "positive" | "negative" | "default" {
   const trimmed = value.trim();
   if (!trimmed || trimmed === "—") return "default";
   return trimmed.startsWith("(") ? "negative" : "positive";
+}
+
+function formatAmount(value: number): string {
+  if (value === 0) return "—";
+  const abs = Math.abs(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return value < 0 ? `(${abs})` : abs;
+}
+
+/** Escapes a field for CSV per RFC 4180 (wraps in quotes, doubles embedded quotes). */
+function csvField(value: string): string {
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
+type ToggleableColumn = "debit" | "credit" | "notes" | "ref";
+
+const COLUMN_LABELS: Record<ToggleableColumn, string> = {
+  debit: "Debit",
+  credit: "Credit",
+  notes: "Notes",
+  ref: "Ref #",
+};
+
+/**
+ * Row's trailing "more" action, with a hover/focus tooltip offering to
+ * include or exclude the row from the grid's totals.
+ */
+function RowActionsTooltip({
+  excluded,
+  onToggle,
+  accountName,
+}: {
+  excluded: boolean;
+  onToggle: () => void;
+  accountName: string;
+}) {
+  return (
+    <span className={styles.rowActions}>
+      <button
+        type="button"
+        className={styles.rowActionsButton}
+        aria-label={`Row options for ${accountName}`}
+      >
+        <IconMore />
+      </button>
+      <span className={styles.rowActionsTooltip} role="tooltip">
+        <button
+          type="button"
+          className={styles.rowActionsTooltipAction}
+          aria-disabled={!excluded}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (excluded) onToggle();
+          }}
+        >
+          Include
+        </button>
+        <span aria-hidden="true">/</span>
+        <button
+          type="button"
+          className={styles.rowActionsTooltipAction}
+          aria-disabled={excluded}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!excluded) onToggle();
+          }}
+        >
+          Exclude
+        </button>
+      </span>
+    </span>
+  );
 }
 
 /**
@@ -97,6 +175,19 @@ export function TrialBalanceGrid({
     defaultSelectedId,
   );
   const [scrolled, setScrolled] = useState(false);
+  const [hiddenColumns, setHiddenColumns] = useState<Set<ToggleableColumn>>(
+    new Set(),
+  );
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
+
+  function handleToggleExcluded(id: string) {
+    setExcludedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   const filters = useMemo(() => {
     const present = Array.from(new Set(accounts.map((a) => a.category)));
@@ -125,6 +216,15 @@ export function TrialBalanceGrid({
       const next = new Set(prev);
       if (next.has(category)) next.delete(category);
       else next.add(category);
+      return next;
+    });
+  }
+
+  function handleToggleColumn(key: string) {
+    setHiddenColumns((prev) => {
+      const next = new Set(prev);
+      if (next.has(key as ToggleableColumn)) next.delete(key as ToggleableColumn);
+      else next.add(key as ToggleableColumn);
       return next;
     });
   }
@@ -166,7 +266,65 @@ export function TrialBalanceGrid({
     return list;
   }, [accounts, activeCategories, search, sortKey, sortDir]);
 
+  const totals = useMemo(
+    () =>
+      visibleAccounts
+        .filter((account) => !excludedIds.has(account.id))
+        .reduce(
+          (acc, account) => {
+            acc.debit += parseAmount(account.debit);
+            acc.credit += parseAmount(account.credit);
+            return acc;
+          },
+          { debit: 0, credit: 0 },
+        ),
+    [visibleAccounts, excludedIds],
+  );
+
+  function handleExportPdf() {
+    window.print();
+  }
+
+  function handleExportExcel() {
+    const headers = ["Account #", "Account Name", "Debit", "Credit", "Notes", "Ref #"];
+    const rows = visibleAccounts.map((a) => [
+      a.acctNumber,
+      a.name,
+      a.debit,
+      a.credit,
+      a.notes,
+      a.refNumber,
+    ]);
+    rows.push(["", "Total", formatAmount(totals.debit), formatAmount(totals.credit), "", ""]);
+    const csv = [headers, ...rows]
+      .map((row) => row.map(csvField).join(","))
+      .join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "trial-balance.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   const isTablet = layout === "tablet";
+  // Account Name freezes at every non-mobile width, not just tablet, so it
+  // stays visible whenever the table scrolls horizontally.
+  const freezeAccountName = layout !== "mobile";
+  const showNotes = !hideNotes && !hiddenColumns.has("notes");
+  const showDebit = !hiddenColumns.has("debit");
+  const showCredit = !hiddenColumns.has("credit");
+  const showRef = !hiddenColumns.has("ref");
+  const columnOptions = (["debit", "credit", "notes", "ref"] as const).map(
+    (key) => ({
+      key,
+      label: COLUMN_LABELS[key],
+      visible: !hiddenColumns.has(key),
+    }),
+  );
 
   return (
     <div className={styles.appShell} data-layout={layout}>
@@ -195,8 +353,12 @@ export function TrialBalanceGrid({
           }
           filtersApplied={activeCategories.size > 0}
           filters={filters}
+          columns={columnOptions}
           onSearchChange={setSearch}
           onToggleFilter={handleToggleFilter}
+          onToggleColumn={handleToggleColumn}
+          onExportPdf={handleExportPdf}
+          onExportExcel={handleExportExcel}
         />
 
         {layout === "mobile" ? (
@@ -206,6 +368,7 @@ export function TrialBalanceGrid({
                 key={account.id}
                 account={account}
                 selected={account.id === selectedId}
+                excluded={excludedIds.has(account.id)}
                 onSelect={() => setSelectedId(account.id)}
               />
             ))}
@@ -214,11 +377,21 @@ export function TrialBalanceGrid({
                 No accounts match your search.
               </div>
             )}
+            {visibleAccounts.length > 0 && (
+              <div className={styles.mobileTotals}>
+                <span>
+                  Total Debit <strong>{formatAmount(totals.debit)}</strong>
+                </span>
+                <span>
+                  Total Credit <strong>{formatAmount(totals.credit)}</strong>
+                </span>
+              </div>
+            )}
           </div>
         ) : (
           <div className={styles.card}>
             <div
-              className={isTablet ? styles.hvScroll : styles.vScroll}
+              className={freezeAccountName ? styles.hvScroll : styles.vScroll}
               onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
             >
               <div className={styles.table}>
@@ -230,16 +403,22 @@ export function TrialBalanceGrid({
                   role="row"
                 >
                   <div
-                    className={isTablet ? styles.sticky : styles.colAccountName}
+                    className={freezeAccountName ? styles.sticky : styles.colAccountName}
                   >
-                    <HeaderCell
-                      columnLabel="Account Name"
-                      sortable
-                      pinned={isTablet}
-                      variant={headerVariant("name")}
-                      onSort={() => handleSort("name")}
-                    />
-                    {isTablet && (
+                    <div className={styles.colStatusSpacer} aria-hidden="true" />
+                    <div className={styles.colAcctNumber}>
+                      <HeaderCell columnLabel="Acct #" />
+                    </div>
+                    <div className={styles.colAccountNameInner}>
+                      <HeaderCell
+                        columnLabel="Account Name"
+                        sortable
+                        pinned={freezeAccountName}
+                        variant={headerVariant("name")}
+                        onSort={() => handleSort("name")}
+                      />
+                    </div>
+                    {freezeAccountName && (
                       <>
                         <span
                           className={styles.stickyDivider}
@@ -252,32 +431,38 @@ export function TrialBalanceGrid({
                       </>
                     )}
                   </div>
-                  <div className={styles.colDebit}>
-                    <HeaderCell
-                      columnLabel="Debit"
-                      sortable
-                      align="end"
-                      variant={headerVariant("debit")}
-                      onSort={() => handleSort("debit")}
-                    />
-                  </div>
-                  <div className={styles.colCredit}>
-                    <HeaderCell
-                      columnLabel="Credit"
-                      sortable
-                      align="end"
-                      variant={headerVariant("credit")}
-                      onSort={() => handleSort("credit")}
-                    />
-                  </div>
-                  {!hideNotes && (
+                  {showDebit && (
+                    <div className={styles.colDebit}>
+                      <HeaderCell
+                        columnLabel="Debit"
+                        sortable
+                        align="end"
+                        variant={headerVariant("debit")}
+                        onSort={() => handleSort("debit")}
+                      />
+                    </div>
+                  )}
+                  {showCredit && (
+                    <div className={styles.colCredit}>
+                      <HeaderCell
+                        columnLabel="Credit"
+                        sortable
+                        align="end"
+                        variant={headerVariant("credit")}
+                        onSort={() => handleSort("credit")}
+                      />
+                    </div>
+                  )}
+                  {showNotes && (
                     <div className={styles.colNotes}>
                       <HeaderCell columnLabel="Notes" />
                     </div>
                   )}
-                  <div className={styles.colRef}>
-                    <HeaderCell columnLabel="Ref #" />
-                  </div>
+                  {showRef && (
+                    <div className={styles.colRef}>
+                      <HeaderCell columnLabel="Ref #" />
+                    </div>
+                  )}
                 </div>
 
                 {visibleAccounts.map((account, index) => {
@@ -289,51 +474,80 @@ export function TrialBalanceGrid({
                       ? IconStatusFlagged
                       : account.id === selectedId
                         ? IconStatusSelected
-                        : IconStatusReconciled;
+                        : IconStatusNone;
+                  const excluded = excludedIds.has(account.id);
                   return (
-                    <div key={account.id} className={styles.bodyRow}>
+                    <div
+                      key={account.id}
+                      className={styles.bodyRow}
+                      data-excluded={excluded || undefined}
+                    >
                       <Row
                         variant={variant}
                         zebra={index % 2 === 1}
                         interactive={variant !== "disabled"}
-                        freezeLeading={isTablet}
-                        freezeTrailing={isTablet}
-                        fitContent={isTablet}
+                        freezeLeading={freezeAccountName}
+                        freezeTrailing={freezeAccountName}
+                        fitContent={freezeAccountName}
                         onClick={() => setSelectedId(account.id)}
                         aria-label={account.name}
                         leadingSlot={
                           <span className={styles.frozenIdentity}>
                             <StatusIcon size={16} />
+                            <span className={styles.acctNumberBadge}>{account.acctNumber}</span>
                             <Cell cellValue={account.name} />
                           </span>
                         }
+                        trailingSlot={
+                          <RowActionsTooltip
+                            excluded={excluded}
+                            onToggle={() => handleToggleExcluded(account.id)}
+                            accountName={account.name}
+                          />
+                        }
                       >
-                        <div className={styles.colDebit}>
-                          <Cell
-                            cellValue={account.debit}
-                            align="end"
-                            tone={toneFor(account.debit)}
-                          />
-                        </div>
-                        <div className={styles.colCredit}>
-                          <Cell
-                            cellValue={account.credit}
-                            align="end"
-                            tone={toneFor(account.credit)}
-                            hasError={
-                              account.status === "flagged" &&
-                              toneFor(account.credit) === "negative"
-                            }
-                          />
-                        </div>
-                        {!hideNotes && (
+                        {showDebit && (
+                          <div className={styles.colDebit}>
+                            <Cell
+                              cellValue={account.debit}
+                              align="end"
+                              tone={toneFor(account.debit)}
+                              tooltip={
+                                toneFor(account.debit) === "negative"
+                                  ? NEGATIVE_BALANCE_EXPLANATION
+                                  : undefined
+                              }
+                            />
+                          </div>
+                        )}
+                        {showCredit && (
+                          <div className={styles.colCredit}>
+                            <Cell
+                              cellValue={account.credit}
+                              align="end"
+                              tone={toneFor(account.credit)}
+                              hasError={
+                                account.status === "flagged" &&
+                                toneFor(account.credit) === "negative"
+                              }
+                              tooltip={
+                                toneFor(account.credit) === "negative"
+                                  ? NEGATIVE_BALANCE_EXPLANATION
+                                  : undefined
+                              }
+                            />
+                          </div>
+                        )}
+                        {showNotes && (
                           <div className={styles.colNotes}>
                             <Cell cellValue={account.notes} />
                           </div>
                         )}
-                        <div className={styles.colRef}>
-                          <Cell cellValue={account.refNumber} />
-                        </div>
+                        {showRef && (
+                          <div className={styles.colRef}>
+                            <Cell cellValue={account.refNumber} />
+                          </div>
+                        )}
                       </Row>
                     </div>
                   );
@@ -341,6 +555,31 @@ export function TrialBalanceGrid({
                 {visibleAccounts.length === 0 && (
                   <div className={styles.emptyState}>
                     No accounts match your search.
+                  </div>
+                )}
+                {visibleAccounts.length > 0 && (
+                  <div
+                    className={[
+                      styles.totalRow,
+                      isTablet ? styles["totalRow--tablet"] : "",
+                    ].join(" ")}
+                    role="row"
+                  >
+                    <div className={freezeAccountName ? styles.sticky : styles.colAccountName}>
+                      <span className={styles.totalLabel}>Total</span>
+                    </div>
+                    {showDebit && (
+                      <div className={styles.colDebit}>
+                        <span className={styles.totalValue}>{formatAmount(totals.debit)}</span>
+                      </div>
+                    )}
+                    {showCredit && (
+                      <div className={styles.colCredit}>
+                        <span className={styles.totalValue}>{formatAmount(totals.credit)}</span>
+                      </div>
+                    )}
+                    {showNotes && <div className={styles.colNotes} />}
+                    {showRef && <div className={styles.colRef} />}
                   </div>
                 )}
               </div>

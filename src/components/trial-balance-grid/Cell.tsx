@@ -14,6 +14,8 @@ export interface CellProps {
   variant?: CellVariant;
   /** Visually tints numeric values (credit-favorable green / unfavorable red). */
   tone?: "default" | "positive" | "negative";
+  /** Shown in a hover/focus tooltip — typically an explanation for an error or negative-balance cell. */
+  tooltip?: string;
   align?: "start" | "end";
   className?: string;
   onValueChange?: (next: string) => void;
@@ -29,6 +31,7 @@ export function Cell({
   hasError = false,
   variant = "default",
   tone = "default",
+  tooltip,
   align = "start",
   className,
   onValueChange,
@@ -59,7 +62,7 @@ export function Cell({
     .join(" ");
 
   return (
-    <div className={classNames} data-variant={variant}>
+    <div className={classNames} data-variant={variant} tabIndex={tooltip ? 0 : undefined}>
       {isEditing ? (
         <input
           className={styles.input}
@@ -75,6 +78,11 @@ export function Cell({
       )}
       {hasError && !isEditing && <IconError size={14} className={styles.errorIcon} />}
       {editable && !isEditing && <IconPencil size={13} className={styles.pencilIcon} />}
+      {tooltip && !isEditing && (
+        <span className={styles.tooltip} role="tooltip">
+          {tooltip}
+        </span>
+      )}
     </div>
   );
 }

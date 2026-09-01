@@ -87,3 +87,34 @@
   flex-shrink: 0;
   color: var(--tbg-sys-on-surface-variant);
 }
+
+/* ---- Hover/focus tooltip — explains an error/negative-balance cell ---- */
+.tooltip {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  z-index: 6;
+  width: max-content;
+  max-width: 220px;
+  padding: 8px 10px;
+  border-radius: var(--tbg-radius-sm);
+  background: var(--tbg-sys-inverse-surface, #313033);
+  color: var(--tbg-sys-inverse-on-surface, #f4eff4);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(2px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+  pointer-events: none;
+}
+
+.cell:hover .tooltip,
+.cell:focus-within .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}

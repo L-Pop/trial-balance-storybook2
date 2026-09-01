@@ -171,6 +171,41 @@ export function IconClose({ size = 14, ...props }: IconProps) {
   );
 }
 
+/** Calendar glyph for the toolbar's date-range control. */
+export function IconCalendar({ size = 18, ...props }: IconProps) {
+  return (
+    <svg {...base(size)} {...props} aria-hidden="true">
+      <rect x="3" y="4.5" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      <path d="M3 8h14M6.5 2.5v3M13.5 2.5v3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Export/download glyph for the toolbar's export menu. */
+export function IconDownload({ size = 18, ...props }: IconProps) {
+  return (
+    <svg {...base(size)} {...props} aria-hidden="true">
+      <path d="M10 3v9.5M6.5 9l3.5 3.5L13.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M4 15.5h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Settings/gear glyph for the toolbar's column-visibility menu. */
+export function IconSettings({ size = 18, ...props }: IconProps) {
+  return (
+    <svg {...base(size)} {...props} aria-hidden="true">
+      <circle cx="10" cy="10" r="2.6" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      <path
+        d="M10 2.8v1.8M10 15.4v1.8M17.2 10h-1.8M4.6 10H2.8M15.03 4.97l-1.27 1.27M6.24 13.76l-1.27 1.27M15.03 15.03l-1.27-1.27M6.24 6.24 4.97 4.97"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function IconCheck({ size = 14, ...props }: IconProps) {
   return (
     <svg {...base(size)} {...props} aria-hidden="true">

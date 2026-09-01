@@ -8,6 +8,7 @@
 
 .searchRow {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: center;
   width: 100%;
@@ -15,7 +16,7 @@
 
 .searchField {
   display: flex;
-  flex: 1 0 0;
+  flex: 2 1 200px;
   min-width: 0;
   align-items: center;
   gap: 10px;
@@ -69,7 +70,39 @@
   background: rgba(0, 0, 0, 0.06);
 }
 
-.filterButton {
+.dateRange {
+  display: flex;
+  flex: 1 1 240px;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: var(--tbg-radius-pill);
+  background: var(--tbg-search-container);
+}
+
+.dateRangeIcon {
+  flex-shrink: 0;
+  color: var(--tbg-search-text);
+}
+
+.dateInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--tbg-search-text);
+  width: 118px;
+}
+
+.dateRangeDash {
+  flex-shrink: 0;
+  color: var(--tbg-search-text);
+  opacity: 0.7;
+}
+
+.filterButton,
+.iconButton {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -83,13 +116,105 @@
   cursor: pointer;
 }
 
-.filterButton--active {
+.filterButton--active,
+.iconButton--active {
   background: var(--tbg-sys-secondary-container);
   color: var(--tbg-sys-on-secondary-container);
 }
 
-.filterButton:hover {
+.filterButton:hover,
+.iconButton:hover {
   filter: brightness(0.96);
+}
+
+.menuWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 10;
+  min-width: 180px;
+  padding: 8px;
+  border-radius: var(--tbg-radius-md);
+  background: var(--tbg-sys-surface);
+  border: 1px solid var(--tbg-sys-outline-variant);
+  box-shadow: var(--tbg-elevation-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.menu--right {
+  left: auto;
+  right: 0;
+}
+
+.menuHeading {
+  margin: 2px 8px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tbg-sys-on-surface-variant);
+}
+
+.menuCheckboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--tbg-sys-on-surface);
+  cursor: pointer;
+}
+
+.menuCheckboxRow:hover {
+  background: var(--tbg-sys-surface-container-low);
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--tbg-sys-on-surface);
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: var(--tbg-sys-surface-container-low);
+}
+
+.exportButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 40px;
+  border-radius: 20px;
+  border: none;
+  background: var(--tbg-sys-primary);
+  color: var(--tbg-sys-surface);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.exportButton:hover,
+.exportButton--active {
+  filter: brightness(1.08);
 }
 
 .chipRow {
