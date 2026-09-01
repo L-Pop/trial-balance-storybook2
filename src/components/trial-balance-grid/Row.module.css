@@ -78,6 +78,15 @@
   margin-right: calc(var(--tbg-density-inline) * -1);
 }
 
+/* While a trailing tooltip/menu (e.g. the row-actions Include/Exclude
+   tooltip) is open, lift this row's trailing region above the sticky
+   header/total rows (z-index 3) so it isn't visually clipped or blocked
+   for pointer events near either edge of the scroll area. At rest it stays
+   below them (z-index 2) so header/total correctly occlude scrolled rows. */
+.row--freeze-trailing:has(.trailing:hover, .trailing:focus-within) .trailing {
+  z-index: 5;
+}
+
 .cells {
   display: flex;
   align-items: center;

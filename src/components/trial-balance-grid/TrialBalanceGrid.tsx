@@ -12,8 +12,9 @@ import {
   type TrialBalanceAccount,
 } from "./data";
 import {
+  IconMore,
   IconStatusFlagged,
-  IconStatusReconciled,
+  IconStatusNone,
   IconStatusSelected,
 } from "./icons/Icons";
 import type { HeaderCellVariant } from "./types";
@@ -79,6 +80,57 @@ const COLUMN_LABELS: Record<ToggleableColumn, string> = {
 };
 
 /**
+ * Row's trailing "more" action, with a hover/focus tooltip offering to
+ * include or exclude the row from the grid's totals.
+ */
+function RowActionsTooltip({
+  excluded,
+  onToggle,
+  accountName,
+}: {
+  excluded: boolean;
+  onToggle: () => void;
+  accountName: string;
+}) {
+  return (
+    <span className={styles.rowActions}>
+      <button
+        type="button"
+        className={styles.rowActionsButton}
+        aria-label={`Row options for ${accountName}`}
+      >
+        <IconMore />
+      </button>
+      <span className={styles.rowActionsTooltip} role="tooltip">
+        <button
+          type="button"
+          className={styles.rowActionsTooltipAction}
+          aria-disabled={!excluded}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (excluded) onToggle();
+          }}
+        >
+          Include
+        </button>
+        <span aria-hidden="true">/</span>
+        <button
+          type="button"
+          className={styles.rowActionsTooltipAction}
+          aria-disabled={excluded}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!excluded) onToggle();
+          }}
+        >
+          Exclude
+        </button>
+      </span>
+    </span>
+  );
+}
+
+/**
  * TrialBalanceGrid — the mock reference-app screen that composes Toolbar,
  * Header Cell, Row and Cell into a full "Ledger" page, and demonstrates the
  * exact responsive behavior specified on the Figma "Responsive Demo" page:
@@ -126,6 +178,16 @@ export function TrialBalanceGrid({
   const [hiddenColumns, setHiddenColumns] = useState<Set<ToggleableColumn>>(
     new Set(),
   );
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
+
+  function handleToggleExcluded(id: string) {
+    setExcludedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   const filters = useMemo(() => {
     const present = Array.from(new Set(accounts.map((a) => a.category)));
@@ -206,15 +268,17 @@ export function TrialBalanceGrid({
 
   const totals = useMemo(
     () =>
-      visibleAccounts.reduce(
-        (acc, account) => {
-          acc.debit += parseAmount(account.debit);
-          acc.credit += parseAmount(account.credit);
-          return acc;
-        },
-        { debit: 0, credit: 0 },
-      ),
-    [visibleAccounts],
+      visibleAccounts
+        .filter((account) => !excludedIds.has(account.id))
+        .reduce(
+          (acc, account) => {
+            acc.debit += parseAmount(account.debit);
+            acc.credit += parseAmount(account.credit);
+            return acc;
+          },
+          { debit: 0, credit: 0 },
+        ),
+    [visibleAccounts, excludedIds],
   );
 
   function handleExportPdf() {
@@ -222,15 +286,16 @@ export function TrialBalanceGrid({
   }
 
   function handleExportExcel() {
-    const headers = ["Account Name", "Debit", "Credit", "Notes", "Ref #"];
+    const headers = ["Account #", "Account Name", "Debit", "Credit", "Notes", "Ref #"];
     const rows = visibleAccounts.map((a) => [
+      a.acctNumber,
       a.name,
       a.debit,
       a.credit,
       a.notes,
       a.refNumber,
     ]);
-    rows.push(["Total", formatAmount(totals.debit), formatAmount(totals.credit), "", ""]);
+    rows.push(["", "Total", formatAmount(totals.debit), formatAmount(totals.credit), "", ""]);
     const csv = [headers, ...rows]
       .map((row) => row.map(csvField).join(","))
       .join("\r\n");
@@ -303,6 +368,7 @@ export function TrialBalanceGrid({
                 key={account.id}
                 account={account}
                 selected={account.id === selectedId}
+                excluded={excludedIds.has(account.id)}
                 onSelect={() => setSelectedId(account.id)}
               />
             ))}
@@ -339,13 +405,18 @@ export function TrialBalanceGrid({
                   <div
                     className={freezeAccountName ? styles.sticky : styles.colAccountName}
                   >
-                    <HeaderCell
-                      columnLabel="Account Name"
-                      sortable
-                      pinned={freezeAccountName}
-                      variant={headerVariant("name")}
-                      onSort={() => handleSort("name")}
-                    />
+                    <div className={styles.colAcctNumber}>
+                      <HeaderCell columnLabel="Acct #" />
+                    </div>
+                    <div className={styles.colAccountNameInner}>
+                      <HeaderCell
+                        columnLabel="Account Name"
+                        sortable
+                        pinned={freezeAccountName}
+                        variant={headerVariant("name")}
+                        onSort={() => handleSort("name")}
+                      />
+                    </div>
                     {freezeAccountName && (
                       <>
                         <span
@@ -402,9 +473,14 @@ export function TrialBalanceGrid({
                       ? IconStatusFlagged
                       : account.id === selectedId
                         ? IconStatusSelected
-                        : IconStatusReconciled;
+                        : IconStatusNone;
+                  const excluded = excludedIds.has(account.id);
                   return (
-                    <div key={account.id} className={styles.bodyRow}>
+                    <div
+                      key={account.id}
+                      className={styles.bodyRow}
+                      data-excluded={excluded || undefined}
+                    >
                       <Row
                         variant={variant}
                         zebra={index % 2 === 1}
@@ -416,9 +492,17 @@ export function TrialBalanceGrid({
                         aria-label={account.name}
                         leadingSlot={
                           <span className={styles.frozenIdentity}>
+                            <span className={styles.acctNumberBadge}>{account.acctNumber}</span>
                             <StatusIcon size={16} />
                             <Cell cellValue={account.name} />
                           </span>
+                        }
+                        trailingSlot={
+                          <RowActionsTooltip
+                            excluded={excluded}
+                            onToggle={() => handleToggleExcluded(account.id)}
+                            accountName={account.name}
+                          />
                         }
                       >
                         {showDebit && (

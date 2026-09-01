@@ -1,10 +1,12 @@
 import styles from "./TrialBalanceGrid.module.css";
-import { IconMore, IconStatusFlagged, IconStatusReconciled, IconStatusSelected } from "./icons/Icons";
+import { IconMore, IconStatusFlagged, IconStatusNone, IconStatusSelected } from "./icons/Icons";
 import type { TrialBalanceAccount } from "./data";
 
 export interface MobileAccountCardProps {
   account: TrialBalanceAccount;
   selected?: boolean;
+  /** Excluded from the grid's totals (toggled from the table's row-actions tooltip). */
+  excluded?: boolean;
   onSelect?: () => void;
 }
 
@@ -20,7 +22,7 @@ function toneFor(value: string): "positive" | "negative" | "default" {
  * control, and Notes/Ref # move inside the card instead of scrolling.
  * (Matches the Figma "Mobile — 390 (card fallback)" reference frame.)
  */
-export function MobileAccountCard({ account, selected = false, onSelect }: MobileAccountCardProps) {
+export function MobileAccountCard({ account, selected = false, excluded = false, onSelect }: MobileAccountCardProps) {
   const isError = account.forcedVariant === "error";
   const isDisabled = account.forcedVariant === "disabled";
 
@@ -33,16 +35,17 @@ export function MobileAccountCard({ account, selected = false, onSelect }: Mobil
     .filter(Boolean)
     .join(" ");
 
-  const StatusIcon = account.status === "flagged" ? IconStatusFlagged : selected ? IconStatusSelected : IconStatusReconciled;
+  const StatusIcon = account.status === "flagged" ? IconStatusFlagged : selected ? IconStatusSelected : IconStatusNone;
 
   const debitTone = toneFor(account.debit);
   const creditTone = toneFor(account.credit);
 
   return (
-    <div className={cardClass} role="button" tabIndex={isDisabled ? -1 : 0} aria-disabled={isDisabled} onClick={isDisabled ? undefined : onSelect}>
+    <div className={cardClass} role="button" tabIndex={isDisabled ? -1 : 0} aria-disabled={isDisabled} data-excluded={excluded || undefined} onClick={isDisabled ? undefined : onSelect}>
       <div className={styles.cardTop}>
         <div className={styles.cardIdentity}>
           <StatusIcon size={18} />
+          <span className={styles.cardAcctNumber}>{account.acctNumber}</span>
           <span className={styles.cardName}>{account.name}</span>
         </div>
         <IconMore size={18} />

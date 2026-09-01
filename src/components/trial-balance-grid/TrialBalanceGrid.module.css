@@ -134,9 +134,104 @@
   border-bottom: none;
 }
 
+/* Excluded from totals via the row-actions tooltip (Include/Exclude) — still
+   shown, just visually de-emphasized. */
+.bodyRow[data-excluded] {
+  opacity: 0.5;
+}
+
+/* ---------------- Row actions (trailing "more" + Include/Exclude tooltip) ---------------- */
+
+.rowActions {
+  position: relative;
+  display: inline-flex;
+}
+
+.rowActionsButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--tbg-sys-on-surface-variant);
+  cursor: pointer;
+}
+
+.rowActionsButton:hover,
+.rowActionsButton:focus-visible {
+  background: var(--tbg-row-hover-state-layer);
+}
+
+.rowActionsTooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--tbg-radius-sm);
+  background: var(--tbg-sys-inverse-surface, #313033);
+  color: var(--tbg-sys-inverse-on-surface, #f4eff4);
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(2px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+  pointer-events: none;
+}
+
+.rowActions:hover .rowActionsTooltip,
+.rowActions:focus-within .rowActionsTooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.rowActionsTooltipAction {
+  border: none;
+  background: transparent;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 12px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.rowActionsTooltipAction:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.rowActionsTooltipAction[aria-disabled="true"] {
+  opacity: 0.55;
+  text-decoration: underline;
+  cursor: default;
+}
+
 .colAccountName {
-  width: 220px;
+  width: 300px;
   flex-shrink: 0;
+}
+
+/* Header-only split of the Account Name column into two adjacent labels
+   (Account # + Account Name) sharing one frozen/sticky wrapper. */
+.colAcctNumber {
+  width: 84px;
+  flex-shrink: 0;
+}
+
+.colAccountNameInner {
+  flex: 1 0 0;
+  min-width: 0;
 }
 
 .colDebit,
@@ -164,18 +259,27 @@
   background: inherit;
   display: flex;
   align-items: center;
-  width: 220px;
+  width: 300px;
   flex-shrink: 0;
 }
 
-/* Body rows: leading status icon + Account Name bundled into one fixed-width
-   unit so they freeze together (see Row's freezeLeading prop). */
+/* Body rows: account number + leading status icon + Account Name bundled
+   into one fixed-width unit so they all freeze together (see Row's
+   freezeLeading prop). */
 .frozenIdentity {
   position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 204px; /* 220px column - Row's own 16px inline padding, which frames this unit */
+  width: 284px; /* 300px column - Row's own 16px inline padding, which frames this unit */
+}
+
+.acctNumberBadge {
+  flex-shrink: 0;
+  width: 52px;
+  font-size: var(--tbg-type-body-small-size);
+  color: var(--tbg-sys-on-surface-variant);
+  font-variant-numeric: tabular-nums;
 }
 
 .stickyDivider {
@@ -243,6 +347,10 @@
   opacity: var(--tbg-row-disabled-opacity);
 }
 
+.accountCard[data-excluded] {
+  opacity: 0.5;
+}
+
 .cardTop {
   display: flex;
   align-items: center;
@@ -255,6 +363,13 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
+}
+
+.cardAcctNumber {
+  flex-shrink: 0;
+  font-size: var(--tbg-type-body-small-size);
+  color: var(--tbg-sys-on-surface-variant);
+  font-variant-numeric: tabular-nums;
 }
 
 .cardName {
