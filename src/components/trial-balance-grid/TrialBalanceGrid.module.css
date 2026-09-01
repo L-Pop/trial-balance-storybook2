@@ -237,6 +237,18 @@
   width: 284px; /* 300px column - Row's own 16px inline padding, which frames this unit */
 }
 
+/* Independent "selected" indicator for rows whose forced variant (e.g. the
+   warning/error row) already owns the row's background — selecting one of
+   these rows can't show the usual full purple container treatment without
+   hiding the warning, so this dot marks the selection instead. */
+.selectedDot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tbg-sys-primary);
+}
+
 .acctNumberBadge {
   flex-shrink: 0;
   width: 52px;
