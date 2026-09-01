@@ -1,0 +1,154 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.32);
+  padding: 24px;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-radius: var(--tbg-radius-lg, 16px);
+  background: var(--tbg-sys-surface);
+  box-shadow: var(--tbg-elevation-3, 0 8px 24px rgba(0, 0, 0, 0.2));
+  font-family: var(--tbg-font-family);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--tbg-sys-on-surface);
+}
+
+.closeButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--tbg-sys-on-surface-variant);
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  background: var(--tbg-sys-surface-container-low);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 20px 20px;
+}
+
+.fieldGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field--full {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tbg-sys-on-surface-variant);
+}
+
+.staticValue {
+  font-size: 14px;
+  color: var(--tbg-sys-on-surface);
+  padding: 9px 0;
+}
+
+.input,
+.textarea {
+  font: inherit;
+  font-size: 14px;
+  color: var(--tbg-sys-on-surface);
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--tbg-sys-outline-variant);
+  background: var(--tbg-sys-surface);
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--tbg-sys-primary);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 64px;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 4px 20px 20px;
+}
+
+.cancelButton {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--tbg-sys-outline-variant);
+  background: transparent;
+  color: var(--tbg-sys-on-surface);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.cancelButton:hover {
+  background: var(--tbg-sys-surface-container-low);
+}
+
+.saveButton {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: none;
+  background: var(--tbg-sys-primary);
+  color: var(--tbg-sys-surface);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.saveButton:hover {
+  filter: brightness(1.08);
+}

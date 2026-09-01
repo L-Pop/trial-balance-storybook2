@@ -38,6 +38,10 @@ export interface ToolbarProps {
   onOpenFilters?: () => void;
   onDateRangeChange?: (range: DateRange) => void;
   onToggleColumn?: (key: string) => void;
+  /** Called when the "Edit" button is clicked. Omit to hide the button entirely. */
+  onEdit?: () => void;
+  /** Shows the "Edit" button in its pressed state. */
+  editActive?: boolean;
   /** Called when "Export to PDF" is chosen. Omit to hide the export control entirely. */
   onExportPdf?: () => void;
   /** Called when "Export to Excel" is chosen. */
@@ -71,6 +75,8 @@ export function Toolbar({
   onOpenFilters,
   onDateRangeChange,
   onToggleColumn,
+  onEdit,
+  editActive = false,
   onExportPdf,
   onExportExcel,
   className,
@@ -177,6 +183,16 @@ export function Toolbar({
         >
           <IconFilter size={20} />
         </button>
+        {onEdit && (
+          <button
+            type="button"
+            className={[styles.secondaryButton, editActive ? styles["secondaryButton--active"] : ""].join(" ")}
+            aria-pressed={editActive}
+            onClick={onEdit}
+          >
+            Edit
+          </button>
+        )}
         {showExport && (
           <div className={styles.menuWrap} ref={exportRef}>
             <button

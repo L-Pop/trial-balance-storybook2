@@ -6,6 +6,7 @@ import { HeaderCell } from "./HeaderCell";
 import { Row } from "./Row";
 import { Cell } from "./Cell";
 import { MobileAccountCard } from "./MobileAccountCard";
+import { EditRowModal } from "./EditRowModal";
 import { useContainerWidth } from "./useContainerWidth";
 import { useCloseOnOutsideClick } from "./useCloseOnOutsideClick";
 import {
@@ -200,6 +201,8 @@ export function TrialBalanceGrid({
     new Set(),
   );
   const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
+  const [localAccounts, setLocalAccounts] = useState<TrialBalanceAccount[]>(accounts);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   function handleToggleExcluded(id: string) {
     setExcludedIds((prev) => {
@@ -211,7 +214,7 @@ export function TrialBalanceGrid({
   }
 
   const filters = useMemo(() => {
-    const present = Array.from(new Set(accounts.map((a) => a.category)));
+    const present = Array.from(new Set(localAccounts.map((a) => a.category)));
     return [
       {
         label: "All accounts",
@@ -224,7 +227,7 @@ export function TrialBalanceGrid({
         category,
       })),
     ];
-  }, [accounts, activeCategories]);
+  }, [localAccounts, activeCategories]);
 
   function handleToggleFilter(label: string) {
     if (label === "All accounts") {
@@ -267,7 +270,7 @@ export function TrialBalanceGrid({
   }
 
   const visibleAccounts = useMemo(() => {
-    let list = accounts;
+    let list = localAccounts;
     if (activeCategories.size > 0) {
       list = list.filter((a) => activeCategories.has(a.category));
     }
@@ -285,7 +288,7 @@ export function TrialBalanceGrid({
       });
     }
     return list;
-  }, [accounts, activeCategories, search, sortKey, sortDir]);
+  }, [localAccounts, activeCategories, search, sortKey, sortDir]);
 
   const totals = useMemo(
     () =>
@@ -301,6 +304,17 @@ export function TrialBalanceGrid({
         ),
     [visibleAccounts, excludedIds],
   );
+
+  const selectedAccount = localAccounts.find((a) => a.id === selectedId) ?? null;
+
+  function handleSaveEdit(changes: { name: string; notes: string }) {
+    setLocalAccounts((prev) =>
+      prev.map((a) =>
+        a.id === selectedId ? { ...a, name: changes.name, notes: changes.notes } : a,
+      ),
+    );
+    setEditModalOpen(false);
+  }
 
   function handleExportPdf() {
     window.print();
@@ -378,9 +392,20 @@ export function TrialBalanceGrid({
           onSearchChange={setSearch}
           onToggleFilter={handleToggleFilter}
           onToggleColumn={handleToggleColumn}
+          onEdit={selectedAccount ? () => setEditModalOpen(true) : undefined}
+          editActive={editModalOpen}
           onExportPdf={handleExportPdf}
           onExportExcel={handleExportExcel}
         />
+
+        {editModalOpen && selectedAccount && (
+          <EditRowModal
+            account={selectedAccount}
+            categoryLabel={CATEGORY_LABEL[selectedAccount.category]}
+            onSave={handleSaveEdit}
+            onCancel={() => setEditModalOpen(false)}
+          />
+        )}
 
         {layout === "mobile" ? (
           <div className={styles.cardList}>
@@ -497,6 +522,14 @@ export function TrialBalanceGrid({
                         ? IconStatusSelected
                         : IconStatusNone;
                   const excluded = excludedIds.has(account.id);
+                  // A forced variant (e.g. the warning/error row) always wins over
+                  // the "selected" container treatment, so selecting one of these
+                  // rows wouldn't otherwise show anything. The inline `selected`
+                  // badge is independent of `variant` for exactly this case — it
+                  // lets the row register as selected without displacing its
+                  // warning styling or swapping its status icon.
+                  const showSelectedBadge =
+                    !!account.forcedVariant && account.id === selectedId;
                   return (
                     <div
                       key={account.id}
@@ -512,9 +545,13 @@ export function TrialBalanceGrid({
                         fitContent={freezeAccountName}
                         onClick={() => setSelectedId(account.id)}
                         aria-label={account.name}
+                        aria-selected={variant === "selected" || showSelectedBadge || undefined}
                         leadingSlot={
                           <span className={styles.frozenIdentity}>
                             <StatusIcon size={16} />
+                            {showSelectedBadge && (
+                              <span className={styles.selectedDot} aria-hidden="true" />
+                            )}
                             <span className={styles.acctNumberBadge}>{account.acctNumber}</span>
                             <Cell cellValue={account.name} />
                           </span>

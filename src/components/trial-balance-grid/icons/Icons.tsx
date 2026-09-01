@@ -127,12 +127,11 @@ export function IconStatusFlagged({ size = 16, ...props }: IconProps) {
   );
 }
 
-/** Leading status badge — selected (checkbox-style fill), used on the "Selected" row variant. */
+/** Leading status badge — selected (solid filled circle), used on the "Selected" row variant. */
 export function IconStatusSelected({ size = 16, ...props }: IconProps) {
   return (
     <svg {...base(size)} {...props} aria-hidden="true">
-      <rect x="1.5" y="1.5" width="17" height="17" rx="4" fill="var(--tbg-sys-primary, #6750a4)" />
-      <path d="M5.5 10 8.5 13 14.5 6.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <circle cx="10" cy="10" r="8.5" fill="var(--tbg-sys-primary, #6750a4)" />
     </svg>
   );
 }
@@ -193,20 +192,22 @@ export function IconDownload({ size = 18, ...props }: IconProps) {
 
 /** Settings/gear glyph for the toolbar's column-visibility menu. */
 export function IconSettings({ size = 18, ...props }: IconProps) {
-  // A ring of 8 rotated rectangular teeth around a hollow center, rather
-  // than radiating lines — at small sizes, thin spokes around a circle read
-  // as a sun/light-mode toggle, not a gear.
+  // A thick ring (drawn as a wide stroke, so it reads as a solid annulus
+  // with a hollow center) with 8 teeth overlapping its outer edge — the
+  // teeth must touch the ring with no gap, or the whole thing collapses
+  // visually into rays around a dot (a sun), which is what happened with
+  // an earlier thin-circle-plus-detached-rects version of this icon.
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" {...props} aria-hidden="true">
-      <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="10" cy="10" r="6" stroke="currentColor" strokeWidth="4" />
       {Array.from({ length: 8 }, (_, i) => (
         <rect
           key={i}
-          x="8.9"
-          y="1.6"
-          width="2.2"
-          height="3.4"
-          rx="0.6"
+          x="9"
+          y="0.8"
+          width="2"
+          height="4.2"
+          rx="0.5"
           fill="currentColor"
           transform={`rotate(${i * 45} 10 10)`}
         />
