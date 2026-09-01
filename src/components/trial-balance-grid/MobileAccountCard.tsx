@@ -1,5 +1,5 @@
 import styles from "./TrialBalanceGrid.module.css";
-import { IconMore, IconStatusFlagged, IconStatusNone, IconStatusSelected } from "./icons/Icons";
+import { IconMore } from "./icons/Icons";
 import type { TrialBalanceAccount } from "./data";
 
 export interface MobileAccountCardProps {
@@ -8,6 +8,8 @@ export interface MobileAccountCardProps {
   /** Excluded from the grid's totals (toggled from the table's row-actions tooltip). */
   excluded?: boolean;
   onSelect?: () => void;
+  /** `name` for the select radio, scoping its native grouping to the parent grid instance. */
+  radioGroupName: string;
 }
 
 function toneFor(value: string): "positive" | "negative" | "default" {
@@ -22,7 +24,7 @@ function toneFor(value: string): "positive" | "negative" | "default" {
  * control, and Notes/Ref # move inside the card instead of scrolling.
  * (Matches the Figma "Mobile — 390 (card fallback)" reference frame.)
  */
-export function MobileAccountCard({ account, selected = false, excluded = false, onSelect }: MobileAccountCardProps) {
+export function MobileAccountCard({ account, selected = false, excluded = false, onSelect, radioGroupName }: MobileAccountCardProps) {
   const isError = account.forcedVariant === "error";
   const isDisabled = account.forcedVariant === "disabled";
 
@@ -35,8 +37,6 @@ export function MobileAccountCard({ account, selected = false, excluded = false,
     .filter(Boolean)
     .join(" ");
 
-  const StatusIcon = account.status === "flagged" ? IconStatusFlagged : selected ? IconStatusSelected : IconStatusNone;
-
   const debitTone = toneFor(account.debit);
   const creditTone = toneFor(account.credit);
 
@@ -44,7 +44,15 @@ export function MobileAccountCard({ account, selected = false, excluded = false,
     <div className={cardClass} role="button" tabIndex={isDisabled ? -1 : 0} aria-disabled={isDisabled} data-excluded={excluded || undefined} onClick={isDisabled ? undefined : onSelect}>
       <div className={styles.cardTop}>
         <div className={styles.cardIdentity}>
-          <StatusIcon size={18} />
+          <input
+            type="radio"
+            name={radioGroupName}
+            className={styles.selectRadio}
+            checked={selected}
+            disabled={isDisabled}
+            onChange={onSelect}
+            aria-label={`Select ${account.name}`}
+          />
           <span className={styles.cardAcctNumber}>{account.acctNumber}</span>
           <span className={styles.cardName}>{account.name}</span>
         </div>
