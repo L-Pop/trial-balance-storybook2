@@ -8,6 +8,8 @@ export interface MobileAccountCardProps {
   /** Excluded from the grid's totals (toggled from the table's row-actions tooltip). */
   excluded?: boolean;
   onSelect?: () => void;
+  /** `name` for the select radio, scoping its native grouping to the parent grid instance. */
+  radioGroupName: string;
 }
 
 function toneFor(value: string): "positive" | "negative" | "default" {
@@ -22,7 +24,7 @@ function toneFor(value: string): "positive" | "negative" | "default" {
  * control, and Notes/Ref # move inside the card instead of scrolling.
  * (Matches the Figma "Mobile — 390 (card fallback)" reference frame.)
  */
-export function MobileAccountCard({ account, selected = false, excluded = false, onSelect }: MobileAccountCardProps) {
+export function MobileAccountCard({ account, selected = false, excluded = false, onSelect, radioGroupName }: MobileAccountCardProps) {
   const isError = account.forcedVariant === "error";
   const isDisabled = account.forcedVariant === "disabled";
 
@@ -44,7 +46,7 @@ export function MobileAccountCard({ account, selected = false, excluded = false,
         <div className={styles.cardIdentity}>
           <input
             type="radio"
-            name="tbg-selected-account-mobile"
+            name={radioGroupName}
             className={styles.selectRadio}
             checked={selected}
             disabled={isDisabled}

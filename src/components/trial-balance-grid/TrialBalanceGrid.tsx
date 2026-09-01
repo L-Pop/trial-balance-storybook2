@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import styles from "./TrialBalanceGrid.module.css";
 import toolbarStyles from "./Toolbar.module.css";
 import { Toolbar } from "./Toolbar";
@@ -170,6 +170,15 @@ export function TrialBalanceGrid({
   defaultSelectedId = "1100",
 }: TrialBalanceGridProps) {
   const { ref, width } = useContainerWidth<HTMLDivElement>();
+  // Scopes the row-select radio group's `name` to this component instance —
+  // the demo page renders more than one TrialBalanceGrid at once, and radios
+  // sharing a literal `name` are grouped by the browser across ALL of them,
+  // not just within one instance's own React tree. That cross-instance
+  // grouping fights React's control of `checked`: clicking a radio natively
+  // unchecks same-named radios in the OTHER instance too, and since that
+  // instance's own state never changed, React never re-renders to fix it —
+  // its row silently stops showing as selected.
+  const radioGroupName = useId();
   const layout: Layout =
     width === 0
       ? "desktop"
@@ -411,6 +420,7 @@ export function TrialBalanceGrid({
                 selected={account.id === selectedId}
                 excluded={excludedIds.has(account.id)}
                 onSelect={() => setSelectedId(account.id)}
+                radioGroupName={radioGroupName}
               />
             ))}
             {visibleAccounts.length === 0 && (
@@ -531,7 +541,7 @@ export function TrialBalanceGrid({
                           <span className={styles.frozenIdentity}>
                             <input
                               type="radio"
-                              name="tbg-selected-account"
+                              name={radioGroupName}
                               className={styles.selectRadio}
                               checked={account.id === selectedId}
                               disabled={isDisabled}
