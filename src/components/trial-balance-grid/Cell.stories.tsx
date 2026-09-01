@@ -8,7 +8,7 @@ import { Cell } from "./Cell";
  * `error` variant's full container/label treatment.
  *
  * **Component Properties**
- * - Text — `cellValue`
+ * - Text — `cellValue`, `tooltip`
  * - Boolean — `editable`, `hasError`
  * - Variant — Default / Editing / Error
  */
@@ -21,6 +21,7 @@ const meta = {
     cellValue: { control: "text", description: "Text property — the value displayed in the cell." },
     editable: { control: "boolean", description: "Boolean property — shows a pencil affordance." },
     hasError: { control: "boolean", description: "Boolean property — inline error glyph, independent of the Error variant." },
+    tooltip: { control: "text", description: "Text property — shown in a hover/focus tooltip, used by the composed grid to explain a negative-balance or error cell." },
     variant: { control: "select", options: ["default", "editing", "error"] },
     tone: { control: "select", options: ["default", "positive", "negative"] },
     align: { control: "select", options: ["start", "end"] },
@@ -76,6 +77,18 @@ export const NegativeValue: Story = {
 /** Long text truncates with an ellipsis once it exceeds the 220px maxWidth. */
 export const TruncatedText: Story = {
   args: { cellValue: "Accumulated Depreciation — Office Equipment (Building B)" },
+};
+
+/** `tooltip` — used by the composed grid on negative-balance cells to explain why the amount is in parentheses. Hover or focus the cell to reveal it. */
+export const WithTooltip: Story = {
+  name: "Tooltip (hover/focus)",
+  args: {
+    cellValue: "(3,150.00)",
+    tone: "negative",
+    align: "end",
+    tooltip:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
 };
 
 /** Playground — every control wired up. */
